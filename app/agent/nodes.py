@@ -10,7 +10,12 @@ from app.agent.state import CampaignState, EvaluationState
 from app.config import settings
 
 # Primary evaluator — OpenAI GPT-4o-mini (fast, cheap, good at JSON output)
-openai_client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+from openai import AsyncOpenAI
+
+openai_client = None
+
+if settings.OPENAI_API_KEY:
+    openai_client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
 # Fallback evaluator — Google Gemini (used if OpenAI call fails)
 genai.configure(api_key=settings.GOOGLE_API_KEY)
@@ -133,17 +138,28 @@ async def evaluate_transcript(state: EvaluationState) -> EvaluationState:
 
     prompt = _build_eval_prompt(transcript, state["company"])
 
-    # Try OpenAI first
+    # Use OpenAI only if configured
+    # Use OpenAI if available, otherwise Gemini
     try:
-        raw = await _call_openai(prompt)
-    except Exception as openai_err:
-        # OpenAI failed — try Google Gemini before giving up
-        print(f"OpenAI evaluation failed ({openai_err}), falling back to Gemini")
-        try:
+        if openai_client:
+            raw = await _call_openai(prompt)
+        else:
             raw = await _call_gemini(prompt)
-        except Exception as gemini_err:
-            print(f"Gemini fallback also failed: {gemini_err}")
-            return {**state, "verdict": "NEEDS_REVIEW", "reasoning": "Both LLMs failed — flagged for manual review"}
+
+    except Exception as openai_err:
+        print(f"OpenAI evaluation failed ({openai_err}), falling back to Gemini")
+
+    try:
+        raw = await _call_gemini(prompt)
+
+    except Exception as gemini_err:
+        print(f"Gemini fallback also failed: {gemini_err}")
+
+        return {
+            **state,
+            "verdict": "NEEDS_REVIEW",
+            "reasoning": "Both LLMs failed — flagged for manual review",
+        }
 
     try:
         result = json.loads(raw)
