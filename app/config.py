@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     VAPI_API_KEY: str
     VAPI_PHONE_NUMBER_ID: str  # the outbound phone number from your Vapi dashboard
 
-    OPENAI_API_KEY: str
+    OPENAI_API_KEY: str=""
     GOOGLE_API_KEY: str
 
     class Config:
