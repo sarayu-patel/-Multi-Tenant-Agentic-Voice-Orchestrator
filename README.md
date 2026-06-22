@@ -1,90 +1,354 @@
-# Voice Agent — Multi-Tenant Outbound Calling System
+# Voice Agent — Multi-Tenant Agentic Voice Orchestrator
 
-FastAPI + LangGraph + Vapi AI + MongoDB
+FastAPI + LangGraph + Vapi AI + Google Gemini/OpenAI + MongoDB Atlas
+
+## Live Demo
+
+🚀 Deployment URL
+
+https://multi-tenant-agentic-voice.onrender.com/
+
+## GitHub Repository
+
+📂 Repository
+
+https://github.com/sarayu-patel/-Multi-Tenant-Agentic-Voice-Orchestrator
+
+---
+
+## Project Overview
+
+The Multi-Tenant Agentic Voice Orchestrator is an AI-powered outbound calling platform that automates customer outreach for multiple companies.
+
+The system allows companies to:
+
+* Manage leads
+* Launch AI-powered outbound calling campaigns
+* Analyze customer conversations using LLMs
+* Automatically classify lead outcomes
+* Store call history and evaluations in MongoDB Atlas
+
+The application supports multiple tenants (companies), each with its own leads and campaign instructions.
+
+---
 
 ## Quick Start
 
 ```bash
+git clone https://github.com/sarayu-patel/-Multi-Tenant-Agentic-Voice-Orchestrator.git
+
 cd voice-agent
-cp .env.example .env        # fill in your keys
+
+cp .env.example .env
+
 pip install -r requirements.txt
+
 uvicorn app.main:app --reload
 ```
 
-Open http://localhost:8000/docs to see the interactive API docs.
+Open:
+
+```text
+http://localhost:8000
+```
+
+API Documentation:
+
+```text
+http://localhost:8000/docs
+```
 
 ---
 
 ## Environment Variables
 
-| Key | Where to get it |
-|-----|----------------|
-| `MONGODB_URI` | MongoDB Atlas → Connect → Drivers |
-| `VAPI_API_KEY` | app.vapi.ai → Account → API Keys |
-| `VAPI_PHONE_NUMBER_ID` | app.vapi.ai → Phone Numbers |
-| `ANTHROPIC_API_KEY` | console.anthropic.com |
+| Key                  | Description                     |
+| -------------------- | ------------------------------- |
+| MONGODB_URI          | MongoDB Atlas connection string |
+| MONGODB_DB_NAME      | Database name (voice_agent)     |
+| VAPI_API_KEY         | Vapi API key                    |
+| VAPI_PHONE_NUMBER_ID | Outbound Vapi phone number      |
+| GOOGLE_API_KEY       | Google Gemini API key           |
+| OPENAI_API_KEY       | Optional OpenAI API key         |
 
 ---
 
 ## API Endpoints
 
-| Method | Path | What it does |
-|--------|------|--------------|
-| GET | `/api/companies` | List all tenants |
-| GET | `/api/leads?company_id=...` | List leads (filter by tenant) |
-| POST | `/api/campaigns/{company_id}/trigger` | Start outbound calls for all PENDING leads |
-| POST | `/api/webhooks/vapi` | Vapi fires this when a call ends |
-| PATCH | `/api/leads/{id}/status` | Manually override a lead's status (testing) |
+| Method | Path                                | Description                      |
+| ------ | ----------------------------------- | -------------------------------- |
+| GET    | /api/companies                      | List all companies               |
+| GET    | /api/leads?company_id=...           | List leads for a company         |
+| POST   | /api/campaigns/{company_id}/trigger | Start outbound calling campaign  |
+| POST   | /api/webhooks/vapi                  | Receives Vapi end-of-call events |
+| PATCH  | /api/leads/{id}/status              | Update lead status manually      |
 
 ---
 
-## LangGraph Architecture
+## System Workflow
 
-**Campaign Graph** — triggered by `POST /api/campaigns/{id}/trigger`
+### 1. Company Management
 
+Companies are created with:
+
+* Company Name
+* Prompt Instructions
+* Business Context
+
+### 2. Lead Management
+
+Each company maintains its own:
+
+* Customer Leads
+* Phone Numbers
+* Lead Status
+
+### 3. Campaign Execution
+
+When a campaign is triggered:
+
+```text
+load_company_and_leads
+        ↓
+dispatch_calls
+        ↓
+END
 ```
-load_company_and_leads → dispatch_calls → END
+
+#### load_company_and_leads
+
+* Loads company details
+* Loads all PENDING leads
+
+#### dispatch_calls
+
+* Initiates outbound calls through Vapi
+* Updates lead status to CALL_INITIATED
+* Creates call log entries
+
+---
+
+## AI Evaluation Workflow
+
+Triggered automatically when Vapi sends an end-of-call webhook.
+
+```text
+load_lead_by_call
+        ↓
+evaluate_transcript
+        ↓
+persist_outcome
+        ↓
+END
 ```
 
-- `load_company_and_leads`: fetches company details + PENDING leads from MongoDB
-- `dispatch_calls`: calls Vapi REST API for each lead, marks them CALL_INITIATED
+### load_lead_by_call
 
-**Evaluation Graph** — triggered by `POST /api/webhooks/vapi`
+Finds the lead using:
 
+```text
+vapi_call_id
 ```
-load_lead_by_call → evaluate_transcript → persist_outcome → END
+
+### evaluate_transcript
+
+Analyzes conversation transcript using:
+
+* OpenAI GPT-4o-mini (Primary)
+* Google Gemini (Fallback)
+
+Returns:
+
+```text
+QUALIFIED
+NOT_INTERESTED
+NEEDS_REVIEW
 ```
 
-- `load_lead_by_call`: finds the lead using the Vapi call ID
-- `evaluate_transcript`: sends transcript to Claude, returns QUALIFIED / NOT_INTERESTED / NEEDS_REVIEW
-- `persist_outcome`: writes the verdict back to MongoDB
+### persist_outcome
 
-The `NEEDS_REVIEW` status is the human-in-the-loop flag — Claude sets this when the transcript is too short, ambiguous, or contradictory.
+Stores:
+
+* Transcript
+* Summary
+* AI reasoning
+* Final outcome
+
+in MongoDB Atlas.
+
+---
+
+## Lead Classification
+
+### QUALIFIED
+
+Customer shows clear buying/renting interest.
+
+### NOT_INTERESTED
+
+Customer explicitly declines.
+
+### NEEDS_REVIEW
+
+Conversation is:
+
+* Too short
+* Ambiguous
+* Inconclusive
+
+This acts as the Human-in-the-Loop review mechanism.
+
+---
+
+## Database Collections
+
+### companies
+
+Stores company information.
+
+### leads
+
+Stores:
+
+* Customer details
+* Phone numbers
+* Lead status
+
+### call_logs
+
+Stores:
+
+* Vapi Call ID
+* Transcript
+* Summary
+* LLM Reasoning
+* Final Outcome
+* Timestamps
+
+---
+
+## Tech Stack
+
+### Backend
+
+* FastAPI
+* Python 3.12
+
+### AI & Orchestration
+
+* LangGraph
+* OpenAI GPT-4o-mini
+* Google Gemini
+
+### Voice Platform
+
+* Vapi AI
+
+### Database
+
+* MongoDB Atlas
+* Motor
+
+### Frontend
+
+* HTML
+* CSS
+* JavaScript
+
+### Deployment
+
+* Docker
+* Render
 
 ---
 
 ## Vapi Webhook Setup
 
-1. In your Vapi dashboard, go to **Account → Server URL**
-2. Set it to `https://your-cloud-run-url/api/webhooks/vapi`
-3. Vapi will POST `end-of-call-report` events there automatically
+In Vapi Dashboard:
+
+```text
+Account
+   ↓
+Server URL
+```
+
+Configure:
+
+```text
+https://multi-tenant-agentic-voice.onrender.com/api/webhooks/vapi
+```
+
+Vapi automatically sends:
+
+```text
+end-of-call-report
+```
+
+events to the application.
 
 ---
 
-## Deploy to GCP Cloud Run
+## Deployment
 
-```bash
-chmod +x deploy.sh
-# Edit PROJECT_ID inside deploy.sh first
-./deploy.sh
-```
+The application is deployed on Render.
+
+Live URL:
+
+https://multi-tenant-agentic-voice.onrender.com/
+
+MongoDB Atlas is used as the cloud database.
 
 ---
 
 ## Seeded Data
 
-On first startup the app creates:
-- **Sunset Realty** (house buying) with 3 leads: Alice, Bob, Carol
-- **CityNest Rentals** (apartment rentals) with 3 leads: David, Eva, Frank
+On first startup the application creates:
 
-All leads start as `PENDING`.
+### Sunset Realty
+
+House buying campaign
+
+Leads:
+
+* Alice
+* Bob
+* Carol
+
+### CityNest Rentals
+
+Apartment rental campaign
+
+Leads:
+
+* David
+* Eva
+* Frank
+
+All leads start with:
+
+```text
+PENDING
+```
+
+status.
+
+---
+
+## Future Enhancements
+
+* Campaign Scheduling
+* Analytics Dashboard
+* Multi-language Calling
+* CRM Integration
+* Real-time Monitoring
+* Advanced Lead Scoring
+
+---
+
+## Author
+
+**Sarayu Patel**
+
+B.Tech Computer Science & Engineering (AI & DS)
+
+Parul University
