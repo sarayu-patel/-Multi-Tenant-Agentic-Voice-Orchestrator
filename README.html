@@ -1,0 +1,1498 @@
+<title>Voice Agent — Technical Reference</title>
+<style>
+  :root {
+    --ground:    #EEF1F8;
+    --surface:   #FFFFFF;
+    --sidebar:   #14192D;
+    --sidebar-2: #1E2540;
+    --text:      #14192D;
+    --text-2:    #4A5168;
+    --text-3:    #8B93A8;
+    --accent:    #2F54EB;
+    --accent-2:  #FF5C35;
+    --accent-3:  #10B981;
+    --border:    #D8DCE8;
+    --code-bg:   #F4F6FC;
+    --tag-pend:  #FFF7ED;
+    --tag-pend-t:#C2410C;
+    --tag-init:  #EFF6FF;
+    --tag-init-t:#1D4ED8;
+    --tag-qual:  #ECFDF5;
+    --tag-qual-t:#065F46;
+    --tag-nr:    #FEF3C7;
+    --tag-nr-t:  #92400E;
+    --tag-fail:  #FEF2F2;
+    --tag-fail-t:#991B1B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--ground);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── SIDEBAR ──────────────────────────────── */
+  .sidebar {
+    width: 252px;
+    min-width: 252px;
+    background: var(--sidebar);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 28px 0 40px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--sidebar-2); }
+
+  .sidebar-brand {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 20px;
+  }
+
+  .sidebar-brand .logo {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 18px;
+    font-weight: normal;
+    font-style: italic;
+    color: #FFFFFF;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+  }
+
+  .sidebar-brand .version {
+    font-size: 10px;
+    color: var(--text-3);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .nav-section {
+    padding: 0 20px;
+    margin-bottom: 8px;
+  }
+
+  .nav-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    padding: 12px 0 6px;
+  }
+
+  .nav-item {
+    display: block;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .nav-item:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.07);
+  }
+
+  .nav-item.active {
+    color: #fff;
+    background: rgba(47,84,235,0.3);
+  }
+
+  /* ── MAIN ─────────────────────────────────── */
+  .main {
+    flex: 1;
+    max-width: 900px;
+    padding: 56px 56px 100px;
+  }
+
+  /* ── SECTIONS ─────────────────────────────── */
+  .section {
+    margin-bottom: 72px;
+  }
+
+  .section-eyebrow {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 30px;
+    font-weight: normal;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .section-lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.7;
+    max-width: 660px;
+    margin-bottom: 32px;
+  }
+
+  /* ── HEADINGS within sections ─────────────── */
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: var(--text);
+    margin: 32px 0 10px;
+  }
+
+  h4 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-3);
+    margin: 24px 0 8px;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.75;
+    margin-bottom: 12px;
+  }
+
+  /* ── CARDS ────────────────────────────────── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .card-icon {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .card-body {
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ── CODE ─────────────────────────────────── */
+  pre {
+    background: var(--sidebar);
+    color: #C9D1E0;
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 16px 0;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  code {
+    font-family: 'SF Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  .comment { color: #5B6A8A; }
+  .kw      { color: #7B93FF; }
+  .str     { color: #86E89D; }
+  .fn      { color: #F7C07A; }
+  .num     { color: #FF9070; }
+
+  /* ── FLOW DIAGRAM ─────────────────────────── */
+  .flow {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 20px 0;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: var(--text-2);
+    overflow-x: auto;
+  }
+
+  .flow .node {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-family: 'SF Mono', monospace;
+    font-weight: 600;
+  }
+
+  .flow .node-green {
+    background: var(--accent-3);
+  }
+
+  .flow .node-orange {
+    background: var(--accent-2);
+  }
+
+  .flow-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .flow-arrow {
+    color: var(--text-3);
+    font-size: 16px;
+  }
+
+  .flow-label {
+    font-size: 11px;
+    color: var(--text-3);
+    font-style: italic;
+  }
+
+  /* ── TABLES ───────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+
+  th {
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-2);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  td:first-child { color: var(--text); font-weight: 500; }
+
+  /* ── TAGS / BADGES ────────────────────────── */
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+
+  .badge-pending  { background: var(--tag-pend);  color: var(--tag-pend-t); }
+  .badge-initiated{ background: var(--tag-init);  color: var(--tag-init-t); }
+  .badge-qualified{ background: var(--tag-qual);  color: var(--tag-qual-t); }
+  .badge-review   { background: var(--tag-nr);    color: var(--tag-nr-t);   }
+  .badge-failed   { background: var(--tag-fail);  color: var(--tag-fail-t); }
+  .badge-get      { background: #EEF1F8; color: #2F54EB; }
+  .badge-post     { background: #FFF0E6; color: #C2410C; }
+  .badge-patch    { background: #ECFDF5; color: #065F46; }
+
+  /* ── CALLOUT ──────────────────────────────── */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: #EEF3FF;
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+    font-size: 13.5px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  .callout.warn {
+    border-color: var(--accent-2);
+    background: #FFF3EE;
+  }
+
+  .callout.success {
+    border-color: var(--accent-3);
+    background: #EDFAF4;
+  }
+
+  .callout strong {
+    color: var(--text);
+  }
+
+  /* ── FUNCTION BLOCK ───────────────────────── */
+  .fn-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .fn-header {
+    padding: 12px 18px;
+    background: var(--code-bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .fn-name {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .fn-sig {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .fn-body {
+    padding: 16px 18px;
+  }
+
+  .fn-body p { margin-bottom: 8px; font-size: 13.5px; }
+
+  .fn-params {
+    margin-top: 10px;
+  }
+
+  .fn-param {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .fn-param-name {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--accent);
+    min-width: 120px;
+  }
+
+  .fn-param-desc { color: var(--text-2); }
+
+  /* ── STATE MACHINE ────────────────────────── */
+  .state-machine {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 16px 0;
+  }
+
+  .state-node {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .state-arrow {
+    color: var(--text-3);
+    font-size: 18px;
+    margin: 0 2px;
+  }
+
+  /* ── DIVIDER ──────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 56px 0;
+  }
+
+  /* ── REQUIREMENT LIST ─────────────────────── */
+  .req-list {
+    list-style: none;
+    margin: 12px 0;
+  }
+
+  .req-list li {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+
+  .req-list li:last-child { border-bottom: none; }
+
+  .req-num {
+    font-family: 'SF Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 28px;
+    padding-top: 2px;
+  }
+
+  /* ── SCENARIO BOX ─────────────────────────── */
+  .scenario {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+
+  .scenario-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .scenario-step {
+    display: flex;
+    gap: 14px;
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+
+  .step-num {
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── HERO ─────────────────────────────────── */
+  .hero {
+    padding: 0 0 56px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 56px;
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 14px;
+  }
+
+  .hero-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 48px;
+    font-weight: normal;
+    font-style: italic;
+    color: var(--text);
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .hero-title span { color: var(--accent); }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 28px;
+  }
+
+  .hero-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-2);
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 32px 24px 80px; }
+    .hero-title { font-size: 32px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" aria-label="Documentation navigation">
+  <div class="sidebar-brand">
+    <div class="logo">Voice Agent</div>
+    <div class="version">Technical Reference v1.0</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <a class="nav-item" href="#overview">System Overview</a>
+    <a class="nav-item" href="#requirements">Requirements</a>
+    <a class="nav-item" href="#architecture">Architecture</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Data Layer</div>
+    <a class="nav-item" href="#database">Database Design</a>
+    <a class="nav-item" href="#lead-lifecycle">Lead Lifecycle</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">API</div>
+    <a class="nav-item" href="#endpoints">Endpoints</a>
+    <a class="nav-item" href="#webhooks">Webhook Handler</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Core Logic</div>
+    <a class="nav-item" href="#langgraph">LangGraph Flows</a>
+    <a class="nav-item" href="#vapi">Vapi Integration</a>
+    <a class="nav-item" href="#llm">LLM Evaluation</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Modules</div>
+    <a class="nav-item" href="#mod-config">config.py</a>
+    <a class="nav-item" href="#mod-db">database/</a>
+    <a class="nav-item" href="#mod-services">services/</a>
+    <a class="nav-item" href="#mod-agent">agent/</a>
+    <a class="nav-item" href="#mod-routers">routers/</a>
+    <a class="nav-item" href="#mod-main">main.py</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Scenarios</div>
+    <a class="nav-item" href="#scenario-campaign">Triggering a Campaign</a>
+    <a class="nav-item" href="#scenario-webhook">Receiving a Webhook</a>
+    <a class="nav-item" href="#scenario-review">NEEDS_REVIEW path</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Deployment</div>
+    <a class="nav-item" href="#deployment">Docker + Cloud Run</a>
+    <a class="nav-item" href="#env">Environment Variables</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ── HERO ─────────────────────────────── -->
+  <div class="hero" id="overview">
+    <div class="hero-eyebrow">AI Engineer Assignment</div>
+    <h1 class="hero-title">Multi-Tenant<br><span>Voice Orchestrator</span></h1>
+    <p class="hero-sub">
+      A cloud-native SaaS system where multiple real-estate companies (tenants)
+      can run AI-powered outbound calling campaigns to qualify their leads —
+      fully automated, from trigger to transcript analysis.
+    </p>
+    <div class="hero-chips">
+      <span class="chip">FastAPI</span>
+      <span class="chip">LangGraph</span>
+      <span class="chip">Vapi AI</span>
+      <span class="chip">MongoDB</span>
+      <span class="chip">OpenAI GPT-4o-mini</span>
+      <span class="chip">Google Gemini</span>
+      <span class="chip">GCP Cloud Run</span>
+      <span class="chip">Docker</span>
+    </div>
+  </div>
+
+  <!-- ── HOW IT WORKS ──────────────────────── -->
+  <div class="section">
+    <div class="section-eyebrow">Big Picture</div>
+    <h2 class="section-title">What this system does</h2>
+    <p class="section-lead">
+      A company manager clicks one button. The system finds every lead that hasn't been called yet,
+      calls each of them using an AI voice agent, listens to the conversation, and automatically
+      updates each lead's status — all without human involvement.
+    </p>
+
+    <div class="scenario">
+      <div class="scenario-title">🏠 Sunset Realty wants to call their pending leads</div>
+      <div class="scenario-step">
+        <div class="step-num">1</div>
+        <div>Manager hits <strong>POST /api/campaigns/{company_id}/trigger</strong>. The system fetches all leads for Sunset Realty that still have status <span class="badge badge-pending">PENDING</span>.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">2</div>
+        <div>For each lead, our server calls <strong>Vapi's REST API</strong> to initiate an outbound phone call. The AI agent's system prompt is built dynamically from Sunset Realty's profile — it mentions houses, not apartments.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">3</div>
+        <div>Each lead's status immediately updates to <span class="badge badge-initiated">CALL_INITIATED</span> in MongoDB. The Vapi call ID is saved so we can match the webhook later.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">4</div>
+        <div>Alice's phone rings. She speaks with the AI for 2 minutes. The call ends.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">5</div>
+        <div>Vapi sends an <strong>end-of-call-report</strong> webhook to our <strong>POST /api/webhooks/vapi</strong> endpoint with the full transcript and summary.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">6</div>
+        <div>LangGraph's evaluation graph runs — it sends the transcript to <strong>OpenAI GPT-4o-mini</strong>, which reads the conversation and returns a verdict: <span class="badge badge-qualified">QUALIFIED</span>.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">7</div>
+        <div>Alice's lead status is updated to <span class="badge badge-qualified">QUALIFIED</span> in MongoDB. The call log is saved with the transcript and reasoning.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REQUIREMENTS ──────────────────────── -->
+  <div class="section" id="requirements">
+    <div class="section-eyebrow">Specification</div>
+    <h2 class="section-title">Functional Requirements</h2>
+    <p class="section-lead">What the system must do.</p>
+
+    <ul class="req-list">
+      <li><span class="req-num">FR-1</span><span>Support multiple companies (tenants) each with their own leads, call history, and AI prompt configuration. One tenant's data is completely isolated from another's.</span></li>
+      <li><span class="req-num">FR-2</span><span>Allow leads to be created with a name, phone number, and company association. Each lead starts in <span class="badge badge-pending">PENDING</span> state.</span></li>
+      <li><span class="req-num">FR-3</span><span>Trigger outbound voice calls to all PENDING leads of a company via Vapi AI's REST API in a single API call.</span></li>
+      <li><span class="req-num">FR-4</span><span>Build each AI call's system prompt dynamically from the company's <code>prompt_instructions</code> field so the AI sounds specific to that company.</span></li>
+      <li><span class="req-num">FR-5</span><span>Receive Vapi's end-of-call webhook, extract the transcript, and route it to the LangGraph evaluation pipeline.</span></li>
+      <li><span class="req-num">FR-6</span><span>Use an LLM (OpenAI GPT-4o-mini, Gemini as fallback) to classify each call as QUALIFIED, NOT_INTERESTED, or NEEDS_REVIEW.</span></li>
+      <li><span class="req-num">FR-7</span><span>Update the lead's status and save the transcript + LLM reasoning in the call log collection.</span></li>
+      <li><span class="req-num">FR-8</span><span>Pre-seed the database with 2 mock companies and 3 leads each on first startup.</span></li>
+      <li><span class="req-num">FR-9</span><span>Expose REST endpoints to list companies, list leads (filtered by company), and manually override a lead's status.</span></li>
+    </ul>
+
+    <h3>Non-Functional Requirements</h3>
+    <p>How the system must behave beyond core features.</p>
+
+    <ul class="req-list">
+      <li><span class="req-num">NFR-1</span><span><strong>Resilience:</strong> One lead failing to call (bad number, Vapi error) must not block the other leads in the same campaign. Errors are captured per-lead and the rest continue.</span></li>
+      <li><span class="req-num">NFR-2</span><span><strong>LLM Fallback:</strong> If OpenAI is unavailable, the system automatically retries with Google Gemini. If both fail, the lead is flagged NEEDS_REVIEW instead of crashing.</span></li>
+      <li><span class="req-num">NFR-3</span><span><strong>Graceful Webhooks:</strong> Empty body pings from Vapi (connectivity checks) return HTTP 200 without errors. Non-JSON bodies are logged and ignored.</span></li>
+      <li><span class="req-num">NFR-4</span><span><strong>Human-in-the-loop:</strong> When the LLM is uncertain about a call outcome (ambiguous transcript, very short call), it returns NEEDS_REVIEW rather than guessing — a human agent should follow up.</span></li>
+      <li><span class="req-num">NFR-5</span><span><strong>Idempotent Seeding:</strong> The seed function checks if data already exists before inserting — restarting the server never creates duplicate companies or leads.</span></li>
+      <li><span class="req-num">NFR-6</span><span><strong>No secret leaks:</strong> All credentials (Vapi key, OpenAI key, MongoDB URI) are loaded from environment variables, never hardcoded.</span></li>
+      <li><span class="req-num">NFR-7</span><span><strong>CORS open for development:</strong> The API allows all origins so a frontend or Postman can call it without headers issues during local development.</span></li>
+      <li><span class="req-num">NFR-8</span><span><strong>Single DB connection:</strong> MongoDB client is created once at startup and reused — not reconnected per request.</span></li>
+      <li><span class="req-num">NFR-9</span><span><strong>Containerizable:</strong> Multi-stage Dockerfile keeps the image lean. Cloud Run compatible (reads PORT from environment).</span></li>
+    </ul>
+  </div>
+
+  <!-- ── ARCHITECTURE ───────────────────────── -->
+  <div class="section" id="architecture">
+    <div class="section-eyebrow">Design</div>
+    <h2 class="section-title">System Architecture</h2>
+    <p class="section-lead">
+      Three separate concerns, cleanly separated: the API layer handles HTTP,
+      the agent layer orchestrates logic, and the service layer talks to external systems.
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">API Layer (FastAPI)</div>
+        <p class="card-body">Handles HTTP requests/responses. Validates inputs. Routes to the right graph or DB query. Four router files — one per domain.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Agent Layer (LangGraph)</div>
+        <p class="card-body">Two stateful graphs. Campaign graph dispatches calls. Evaluation graph processes transcripts. Each node does exactly one thing.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📞</div>
+        <div class="card-title">Service Layer (Vapi)</div>
+        <p class="card-body">One thin wrapper around Vapi's REST API. Builds the dynamic prompt, assembles the payload, handles errors explicitly.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗄️</div>
+        <div class="card-title">Data Layer (MongoDB)</div>
+        <p class="card-body">Three collections: companies, leads, call_logs. Async access via Motor. One connection shared across the entire app lifetime.</p>
+      </div>
+    </div>
+
+    <pre><code><span class="comment">┌─────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│                      Your Browser / Frontend                 │</span>
+<span class="comment">└────────────────────────────┬────────────────────────────────┘</span>
+                             │ HTTP
+<span class="comment">┌────────────────────────────▼────────────────────────────────┐</span>
+<span class="comment">│                    FastAPI (main.py)                         │</span>
+<span class="comment">│   /api/companies   /api/leads   /api/campaigns  /api/webhooks │</span>
+<span class="comment">└────┬───────────────────────────────────────────┬────────────┘</span>
+     │ ainvoke()                                  │ ainvoke()
+<span class="comment">┌────▼────────────┐                    ┌──────────▼────────────┐</span>
+<span class="comment">│ campaign_graph  │                    │ evaluation_graph      │</span>
+<span class="comment">│                 │                    │                       │</span>
+<span class="comment">│ load_leads      │                    │ load_lead_by_call     │</span>
+<span class="comment">│     ↓           │                    │     ↓                 │</span>
+<span class="comment">│ dispatch_calls  │                    │ evaluate_transcript   │</span>
+<span class="comment">└────┬────────────┘                    │     ↓                 │</span>
+     │ HTTP POST                       │ persist_outcome       │</span>
+<span class="comment">┌────▼────────────┐                    └──────────┬────────────┘</span>
+<span class="comment">│   Vapi REST API │                               │ Motor async</span>
+<span class="comment">│  (voice calls)  │                    ┌──────────▼────────────┐</span>
+<span class="comment">└─────────────────┘                    │  MongoDB Atlas        │</span>
+         │ webhook                      │  companies / leads    │</span>
+         │ (end-of-call)                │  call_logs            │</span>
+         └──────────────────────────────┘                       </code></pre>
+  </div>
+
+  <!-- ── DATABASE ───────────────────────────── -->
+  <div class="section" id="database">
+    <div class="section-eyebrow">Data Layer</div>
+    <h2 class="section-title">Database Design</h2>
+    <p class="section-lead">
+      MongoDB with three collections. Multi-tenancy is enforced by <code>company_id</code> on every lead
+      and call log — all queries filter by it.
+    </p>
+
+    <h3>Collection: companies</h3>
+    <p>One document per tenant (real-estate agency). The <code>prompt_instructions</code> field is what makes each tenant's AI calls sound different.</p>
+
+    <pre><code>{
+  <span class="str">"_id"</span>: ObjectId(<span class="str">"6a377fa8aed11f313e1df9fe"</span>),
+  <span class="str">"name"</span>: <span class="str">"Sunset Realty"</span>,
+  <span class="str">"prompt_instructions"</span>: <span class="str">"You work for Sunset Realty, a premium home-buying agency.
+    Your job is to find out if the lead is looking to purchase a home,
+    what their budget is, and which neighborhoods they prefer."</span>,
+  <span class="str">"created_at"</span>: ISODate(<span class="str">"2024-01-15T10:00:00Z"</span>)
+}</code></pre>
+
+    <h3>Collection: leads</h3>
+    <p>One document per potential customer. The <code>status</code> field tracks exactly where in the calling pipeline this lead sits. <code>vapi_call_id</code> is the foreign key that links to Vapi's call when it happens.</p>
+
+    <pre><code>{
+  <span class="str">"_id"</span>: ObjectId(<span class="str">"6a378113dceb6bddaaa5738b"</span>),
+  <span class="str">"company_id"</span>: <span class="str">"6a377fa8aed11f313e1df9fe"</span>,  <span class="comment">// ties to companies._id</span>
+  <span class="str">"name"</span>: <span class="str">"Alice Johnson"</span>,
+  <span class="str">"phone"</span>: <span class="str">"+14085550101"</span>,              <span class="comment">// E.164 format required by Vapi</span>
+  <span class="str">"status"</span>: <span class="str">"QUALIFIED"</span>,               <span class="comment">// updated by LangGraph after call</span>
+  <span class="str">"vapi_call_id"</span>: <span class="str">"019ee8d9-cb3a-700f..."</span>, <span class="comment">// saved when call is initiated</span>
+  <span class="str">"created_at"</span>: ISODate(<span class="str">"2024-01-15T10:00:00Z"</span>),
+  <span class="str">"updated_at"</span>: ISODate(<span class="str">"2024-01-15T10:15:00Z"</span>)
+}</code></pre>
+
+    <h3>Collection: call_logs</h3>
+    <p>One document per call attempt. Created when the call is dispatched (transcript is null at first), then filled in when the webhook arrives.</p>
+
+    <pre><code>{
+  <span class="str">"_id"</span>: ObjectId(<span class="str">"..."</span>),
+  <span class="str">"lead_id"</span>: <span class="str">"6a378113dceb6bddaaa5738b"</span>,
+  <span class="str">"company_id"</span>: <span class="str">"6a377fa8aed11f313e1df9fe"</span>,
+  <span class="str">"vapi_call_id"</span>: <span class="str">"019ee8d9-cb3a-700f..."</span>,
+  <span class="str">"transcript"</span>: <span class="str">"AI: Hi Alice... Alice: Yes I'm looking to buy..."</span>,
+  <span class="str">"summary"</span>: <span class="str">"Customer expressed interest in buying a 3-bed home."</span>,
+  <span class="str">"llm_reasoning"</span>: <span class="str">"Customer clearly stated intent to purchase."</span>,
+  <span class="str">"outcome"</span>: <span class="str">"QUALIFIED"</span>,
+  <span class="str">"created_at"</span>: ISODate(<span class="str">"2024-01-15T10:05:00Z"</span>)
+}</code></pre>
+  </div>
+
+  <!-- ── LEAD LIFECYCLE ────────────────────── -->
+  <div class="section" id="lead-lifecycle">
+    <div class="section-eyebrow">State Machine</div>
+    <h2 class="section-title">Lead Status Lifecycle</h2>
+    <p class="section-lead">
+      A lead moves through exactly these states in this order.
+      The status is set by different parts of the system at different times.
+    </p>
+
+    <div class="state-machine">
+      <div class="state-node">
+        <span class="badge badge-pending">PENDING</span>
+      </div>
+      <span class="state-arrow">→</span>
+      <div class="state-node">
+        <span class="badge badge-initiated">CALL_INITIATED</span>
+      </div>
+      <span class="state-arrow">→</span>
+      <div class="state-node">
+        <span class="badge badge-qualified">QUALIFIED</span>
+      </div>
+      <span class="state-arrow" style="opacity:0.3">or</span>
+      <div class="state-node">
+        <span class="badge badge-failed">NOT_INTERESTED</span>
+      </div>
+      <span class="state-arrow" style="opacity:0.3">or</span>
+      <div class="state-node">
+        <span class="badge badge-review">NEEDS_REVIEW</span>
+      </div>
+      <span class="state-arrow" style="opacity:0.3">or</span>
+      <div class="state-node">
+        <span class="badge badge-failed">FAILED</span>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Status</th><th>Who sets it</th><th>When</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge badge-pending">PENDING</span></td><td>Seed script / <code>POST /api/leads/</code></td><td>When lead is first created</td></tr>
+        <tr><td><span class="badge badge-initiated">CALL_INITIATED</span></td><td><code>dispatch_calls</code> node</td><td>Right after Vapi accepts the outbound call request</td></tr>
+        <tr><td><span class="badge badge-qualified">QUALIFIED</span></td><td><code>persist_outcome</code> node</td><td>LLM saw clear buying/renting intent in transcript</td></tr>
+        <tr><td><span class="badge badge-failed">NOT_INTERESTED</span></td><td><code>persist_outcome</code> node</td><td>LLM saw a clear decline in transcript</td></tr>
+        <tr><td><span class="badge badge-review">NEEDS_REVIEW</span></td><td><code>persist_outcome</code> node</td><td>LLM wasn't confident / call was too short / both LLMs failed</td></tr>
+        <tr><td><span class="badge badge-failed">FAILED</span></td><td><code>dispatch_calls</code> node</td><td>Vapi rejected the call (bad number, unsupported country, etc.)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── API ENDPOINTS ─────────────────────── -->
+  <div class="section" id="endpoints">
+    <div class="section-eyebrow">HTTP Interface</div>
+    <h2 class="section-title">API Endpoints</h2>
+    <p class="section-lead">All routes are prefixed with <code>/api/</code>. CORS is open for all origins.</p>
+
+    <table>
+      <thead>
+        <tr><th>Method</th><th>Path</th><th>What it does</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-get">GET</span></td>
+          <td><code>/api/companies/</code></td>
+          <td>List all tenants (companies). Used by the frontend tenant selector.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-get">GET</span></td>
+          <td><code>/api/companies/{id}</code></td>
+          <td>Get one company by its MongoDB ObjectId.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-post">POST</span></td>
+          <td><code>/api/companies/</code></td>
+          <td>Create a new company. Body: <code>{ name, prompt_instructions }</code></td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-get">GET</span></td>
+          <td><code>/api/leads/?company_id=...</code></td>
+          <td>List leads. Pass <code>company_id</code> to filter by tenant. No filter = all leads.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-get">GET</span></td>
+          <td><code>/api/leads/{id}</code></td>
+          <td>Get one lead by its MongoDB ObjectId.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-post">POST</span></td>
+          <td><code>/api/leads/</code></td>
+          <td>Create a lead. Body: <code>{ company_id, name, phone }</code>. Phone must be E.164.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-patch">PATCH</span></td>
+          <td><code>/api/leads/{id}/status</code></td>
+          <td>Manually override a lead's status. Body: <code>{ status: "QUALIFIED" }</code>. Useful for testing.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-post">POST</span></td>
+          <td><code>/api/campaigns/{company_id}/trigger</code></td>
+          <td>Start outbound calls for all PENDING leads of this company. Runs the campaign LangGraph.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-post">POST</span></td>
+          <td><code>/api/webhooks/vapi</code></td>
+          <td>Vapi calls this when a call ends. Runs the evaluation LangGraph. Must be public HTTPS.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-get">GET</span></td>
+          <td><code>/health</code></td>
+          <td>Health check. Returns <code>{ "status": "ok" }</code>. Used by Cloud Run.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Example: Trigger a campaign</h3>
+    <pre><code><span class="comment"># Request</span>
+<span class="kw">POST</span> /api/campaigns/6a377fa8aed11f313e1df9fe/trigger
+
+<span class="comment"># Response</span>
+{
+  <span class="str">"company_id"</span>: <span class="str">"6a377fa8aed11f313e1df9fe"</span>,
+  <span class="str">"calls_initiated"</span>: <span class="num">2</span>,
+  <span class="str">"calls_failed"</span>: <span class="num">0</span>,
+  <span class="str">"details"</span>: [
+    { <span class="str">"lead_id"</span>: <span class="str">"..."</span>, <span class="str">"vapi_call_id"</span>: <span class="str">"019ee8d9-..."</span> },
+    { <span class="str">"lead_id"</span>: <span class="str">"..."</span>, <span class="str">"vapi_call_id"</span>: <span class="str">"019ee8da-..."</span> }
+  ],
+  <span class="str">"errors"</span>: []
+}</code></pre>
+  </div>
+
+  <!-- ── LANGGRAPH ───────────────────────────── -->
+  <div class="section" id="langgraph">
+    <div class="section-eyebrow">Agentic Orchestration</div>
+    <h2 class="section-title">LangGraph Flows</h2>
+    <p class="section-lead">
+      LangGraph builds a stateful computation graph — a series of functions (nodes) connected by edges.
+      Each node receives the current state, does one thing, and returns an updated state.
+      We have two completely separate graphs for two separate triggers.
+    </p>
+
+    <div class="callout">
+      <strong>Why LangGraph instead of just calling functions directly?</strong><br>
+      LangGraph gives us a structured, inspectable pipeline where each step is isolated,
+      testable, and replaceable. If the evaluation logic needs to change, we update one node.
+      The rest of the graph is untouched.
+    </div>
+
+    <h3>Graph 1 — Campaign Dispatch</h3>
+    <p>Triggered by: <code>POST /api/campaigns/{id}/trigger</code></p>
+
+    <div class="flow">
+      <div class="flow-line">
+        <span class="node">START</span>
+        <span class="flow-arrow">→</span>
+        <span class="node">load_company_and_leads</span>
+        <span class="flow-arrow">→</span>
+        <span class="node">dispatch_calls</span>
+        <span class="flow-arrow">→</span>
+        <span class="node node-green">END</span>
+      </div>
+    </div>
+
+    <h4>State: CampaignState</h4>
+    <pre><code>{
+  <span class="str">"company_id"</span>: <span class="str">"6a377fa..."</span>,     <span class="comment">// input — passed in by the router</span>
+  <span class="str">"company"</span>: {},                   <span class="comment">// filled by load_company_and_leads</span>
+  <span class="str">"pending_leads"</span>: [],             <span class="comment">// filled by load_company_and_leads</span>
+  <span class="str">"initiated"</span>: [],                 <span class="comment">// filled by dispatch_calls</span>
+  <span class="str">"errors"</span>: []                     <span class="comment">// filled by dispatch_calls (per-lead errors)</span>
+}</code></pre>
+
+    <h4>Node: load_company_and_leads</h4>
+    <p>Queries MongoDB for the company document and all leads where <code>status == "PENDING"</code> and <code>company_id</code> matches. Converts ObjectIds to strings (JSON-safe). Returns both in the state.</p>
+
+    <h4>Node: dispatch_calls</h4>
+    <p>Loops over <code>pending_leads</code>. For each: calls <code>vapi_service.initiate_outbound_call()</code>, updates the lead to <span class="badge badge-initiated">CALL_INITIATED</span>, creates a call_log document, and stores the Vapi call ID. If one lead fails, its error is added to <code>state["errors"]</code> and the loop continues. This is the key resilience behaviour.</p>
+
+    <h3>Graph 2 — Call Evaluation</h3>
+    <p>Triggered by: Vapi's webhook hitting <code>POST /api/webhooks/vapi</code></p>
+
+    <div class="flow">
+      <div class="flow-line">
+        <span class="node">START</span>
+        <span class="flow-arrow">→</span>
+        <span class="node">load_lead_by_call</span>
+        <span class="flow-arrow">→</span>
+        <span class="node">evaluate_transcript</span>
+        <span class="flow-arrow">→</span>
+        <span class="node">persist_outcome</span>
+        <span class="flow-arrow">→</span>
+        <span class="node node-green">END</span>
+      </div>
+    </div>
+
+    <h4>State: EvaluationState</h4>
+    <pre><code>{
+  <span class="str">"vapi_call_id"</span>: <span class="str">"019ee8d9-..."</span>, <span class="comment">// from Vapi webhook payload</span>
+  <span class="str">"transcript"</span>: <span class="str">"AI: Hi Alice..."</span>, <span class="comment">// from Vapi webhook payload</span>
+  <span class="str">"summary"</span>: <span class="str">"Customer wants..."</span>,  <span class="comment">// from Vapi webhook payload</span>
+  <span class="str">"lead"</span>: {},                       <span class="comment">// filled by load_lead_by_call</span>
+  <span class="str">"company"</span>: {},                    <span class="comment">// filled by load_lead_by_call</span>
+  <span class="str">"verdict"</span>: <span class="str">"QUALIFIED"</span>,          <span class="comment">// filled by evaluate_transcript</span>
+  <span class="str">"reasoning"</span>: <span class="str">"Customer stated..."</span> <span class="comment">// filled by evaluate_transcript</span>
+}</code></pre>
+
+    <h4>Node: load_lead_by_call</h4>
+    <p>Finds the lead document where <code>vapi_call_id</code> matches. Also loads the company so the LLM has context about what this company sells. If no lead is found, raises a <code>ValueError</code> which becomes a 404 HTTP response.</p>
+
+    <h4>Node: evaluate_transcript</h4>
+    <p>The brain of the system. Builds a prompt that includes the company context and the full transcript, then asks the LLM to classify the outcome. Returns a JSON verdict. Uses OpenAI first, Gemini as fallback, and <span class="badge badge-review">NEEDS_REVIEW</span> if both fail or return unparseable output.</p>
+
+    <h4>Node: persist_outcome</h4>
+    <p>Writes the verdict back to two places: updates <code>leads.status</code>, and fills in the <code>call_logs</code> document with the transcript, summary, and LLM reasoning.</p>
+  </div>
+
+  <!-- ── VAPI ───────────────────────────────── -->
+  <div class="section" id="vapi">
+    <div class="section-eyebrow">Voice Layer</div>
+    <h2 class="section-title">Vapi Integration</h2>
+    <p class="section-lead">
+      Vapi handles the entire telephony layer — placing the call, running the AI conversation,
+      transcribing it, and posting the results back. We just tell it what to say and where to report.
+    </p>
+
+    <h3>Initiating an outbound call</h3>
+    <p>We call <code>POST https://api.vapi.ai/call/phone</code> with a payload that includes the phone number, the customer's name, and a fully assembled assistant configuration.</p>
+
+    <pre><code><span class="comment">// What we send to Vapi for each lead</span>
+{
+  <span class="str">"phoneNumberId"</span>: <span class="str">"d19b97e9-..."</span>,  <span class="comment">// our "from" number on Vapi</span>
+  <span class="str">"customer"</span>: {
+    <span class="str">"name"</span>: <span class="str">"Alice Johnson"</span>,
+    <span class="str">"number"</span>: <span class="str">"+14085550101"</span>
+  },
+  <span class="str">"assistant"</span>: {
+    <span class="str">"firstMessage"</span>: <span class="str">"Hi Alice, this is an assistant from Sunset Realty..."</span>,
+    <span class="str">"transcriber"</span>: { <span class="str">"provider"</span>: <span class="str">"deepgram"</span>, <span class="str">"model"</span>: <span class="str">"nova-2"</span> },
+    <span class="str">"model"</span>: {
+      <span class="str">"provider"</span>: <span class="str">"openai"</span>,
+      <span class="str">"model"</span>: <span class="str">"gpt-4o-mini"</span>,
+      <span class="str">"messages"</span>: [{ <span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"&lt;dynamic system prompt&gt;"</span> }]
+    },
+    <span class="str">"voice"</span>: { <span class="str">"provider"</span>: <span class="str">"11labs"</span>, <span class="str">"voiceId"</span>: <span class="str">"21m00Tcm4TlvDq8ikWAM"</span> },
+    <span class="str">"serverUrl"</span>: <span class="str">"https://your-ngrok-url.ngrok.io/api/webhooks/vapi"</span>
+  }
+}</code></pre>
+
+    <h3>Dynamic Prompting (Bonus Feature)</h3>
+    <p>
+      Each company has a <code>prompt_instructions</code> field. The <code>_build_system_prompt()</code>
+      function combines it with the customer's name to create a unique system prompt per call.
+      Sunset Realty's AI talks about house-buying. CityNest's AI talks about renting apartments.
+      Same infrastructure, completely different conversations.
+    </p>
+
+    <pre><code><span class="kw">def</span> <span class="fn">_build_system_prompt</span>(lead, company):
+    <span class="kw">return</span> (
+        <span class="comment"># Company's custom instructions come first</span>
+        f<span class="str">"{company['prompt_instructions']}\n\n"</span>
+        <span class="comment"># Then we personalize with the actual customer name</span>
+        f<span class="str">"You are currently speaking with {lead['name']}. "</span>
+        <span class="str">"Keep the call under 3 minutes. "</span>
+        <span class="str">"At the end, summarize what the customer said about their intent."</span>
+    )</code></pre>
+
+    <h3>What Vapi returns</h3>
+    <p>Vapi responds immediately with a call object. We save the <code>id</code> field as <code>vapi_call_id</code> on the lead — this is what we use later to match the webhook back to the right lead.</p>
+
+    <div class="callout warn">
+      <strong>Free tier limitation:</strong> Free Vapi phone numbers are US numbers and cannot place calls to international numbers (+91 India, etc.). For testing with an Indian number, you need to purchase an Indian number in the Vapi dashboard (~$2-3/month).
+    </div>
+  </div>
+
+  <!-- ── WEBHOOK ────────────────────────────── -->
+  <div class="section" id="webhooks">
+    <div class="section-eyebrow">Inbound Events</div>
+    <h2 class="section-title">Webhook Handler</h2>
+    <p class="section-lead">
+      When a call ends, Vapi makes an HTTP POST to our server with the full call report.
+      This is where the evaluation pipeline starts.
+    </p>
+
+    <h3>What Vapi sends</h3>
+    <pre><code><span class="comment">// Vapi end-of-call-report webhook payload</span>
+{
+  <span class="str">"message"</span>: {
+    <span class="str">"type"</span>: <span class="str">"end-of-call-report"</span>,
+    <span class="str">"call"</span>: {
+      <span class="str">"id"</span>: <span class="str">"019ee8d9-cb3a-700f-9d7a-f162bd945613"</span>,
+      <span class="str">"customer"</span>: { <span class="str">"number"</span>: <span class="str">"+14085550101"</span> }
+    },
+    <span class="str">"transcript"</span>: <span class="str">"AI: Hi Alice...\nAlice: Hi, yes I'm interested in buying..."</span>,
+    <span class="str">"summary"</span>: <span class="str">"The caller expressed interest in purchasing a 3-bedroom home."</span>
+  }
+}</code></pre>
+
+    <h3>What our handler does with it</h3>
+
+    <div class="scenario">
+      <div class="scenario-title">📥 Webhook arrives</div>
+      <div class="scenario-step">
+        <div class="step-num">1</div>
+        <div>Read raw bytes first (not <code>request.json()</code>) so we can log the payload and handle empty bodies gracefully — Vapi sends empty pings to verify the endpoint is alive.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">2</div>
+        <div>Parse as JSON. Extract <code>message.type</code>. If it's not <code>end-of-call-report</code>, return <code>{ "status": "ignored" }</code> — we don't care about mid-call status updates.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">3</div>
+        <div>Extract <code>call.id</code>, <code>transcript</code>, and <code>summary</code>. Pass them into <code>evaluation_graph.ainvoke()</code>.</div>
+      </div>
+      <div class="scenario-step">
+        <div class="step-num">4</div>
+        <div>The graph runs three nodes (load → evaluate → persist). Return the verdict to Vapi as the HTTP response.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Public URL requirement:</strong> Vapi is a cloud service. Your server must have a publicly accessible HTTPS URL. Locally, use <code>ngrok http 8000</code> and set <code>WEBHOOK_BASE_URL</code> in <code>.env</code> to the ngrok URL. In production, it's your Cloud Run URL automatically.
+    </div>
+  </div>
+
+  <!-- ── LLM EVALUATION ────────────────────── -->
+  <div class="section" id="llm">
+    <div class="section-eyebrow">AI Classification</div>
+    <h2 class="section-title">LLM Transcript Evaluation</h2>
+    <p class="section-lead">
+      The LLM is given the transcript and asked to classify the outcome.
+      It is NOT hardcoded logic — the LLM reads the actual conversation and makes a judgment.
+    </p>
+
+    <h3>The prompt structure</h3>
+    <pre><code>You are analyzing a completed real estate sales call transcript.
+
+Company: Sunset Realty
+Company Focus: You work for Sunset Realty, a premium home-buying agency...
+
+Call Transcript:
+AI: Hi Alice, this is an assistant from Sunset Realty...
+Alice: Yes hi, I've been looking at the market actually...
+
+Classify the lead into exactly one of these categories:
+- QUALIFIED: clear interest (wants to buy/sell/rent, asked questions, gave details)
+- NOT_INTERESTED: clearly declined or is not interested
+- NEEDS_REVIEW: too short, confusing, or you are not confident
+
+Return ONLY valid JSON:
+{
+    "verdict": "QUALIFIED",
+    "reasoning": "one sentence explanation"
+}</code></pre>
+
+    <h3>The fallback chain</h3>
+
+    <div class="flow">
+      <div class="flow-line">
+        <span class="node">Try OpenAI GPT-4o-mini</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-label">success?</span>
+        <span class="flow-arrow">→</span>
+        <span class="node node-green">use result</span>
+      </div>
+      <div class="flow-line" style="padding-left: 24px;">
+        <span class="flow-label">↓ failed</span>
+      </div>
+      <div class="flow-line">
+        <span class="node">Try Google Gemini 1.5 Flash</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-label">success?</span>
+        <span class="flow-arrow">→</span>
+        <span class="node node-green">use result</span>
+      </div>
+      <div class="flow-line" style="padding-left: 24px;">
+        <span class="flow-label">↓ failed</span>
+      </div>
+      <div class="flow-line">
+        <span class="node node-orange">Set NEEDS_REVIEW</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-label">human follows up</span>
+      </div>
+    </div>
+
+    <p>OpenAI uses <code>response_format: { type: "json_object" }</code> which forces the model to return valid JSON — no parsing failures. Gemini doesn't support this so we catch JSON errors and fall back to NEEDS_REVIEW for those too.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── MODULE REFERENCE ─────────────────── -->
+  <div class="section" id="mod-config">
+    <div class="section-eyebrow">Module Reference</div>
+    <h2 class="section-title">config.py</h2>
+    <p>Loads all environment variables using Pydantic's <code>BaseSettings</code>. Any missing required variable causes a startup error with a clear message. Imported by every module that needs credentials.</p>
+
+    <div class="fn-block">
+      <div class="fn-header">
+        <span class="fn-name">Settings</span>
+        <span class="fn-sig">class (BaseSettings)</span>
+      </div>
+      <div class="fn-body">
+        <p>Defines all required and optional environment variables. Pydantic validates types and raises an error on startup if anything is missing or wrong — much better than a cryptic KeyError at runtime.</p>
+        <div class="fn-params">
+          <div class="fn-param"><span class="fn-param-name">MONGODB_URI</span><span class="fn-param-desc">Connection string for MongoDB Atlas. Required.</span></div>
+          <div class="fn-param"><span class="fn-param-name">VAPI_API_KEY</span><span class="fn-param-desc">Vapi private key for REST API calls. Required.</span></div>
+          <div class="fn-param"><span class="fn-param-name">VAPI_PHONE_NUMBER_ID</span><span class="fn-param-desc">The Vapi "from" number ID. Required.</span></div>
+          <div class="fn-param"><span class="fn-param-name">OPENAI_API_KEY</span><span class="fn-param-desc">OpenAI key for transcript evaluation. Required.</span></div>
+          <div class="fn-param"><span class="fn-param-name">GOOGLE_API_KEY</span><span class="fn-param-desc">Gemini key for fallback evaluation. Required.</span></div>
+          <div class="fn-param"><span class="fn-param-name">WEBHOOK_BASE_URL</span><span class="fn-param-desc">Public URL where Vapi will POST webhooks. Defaults to empty string (uses Vapi dashboard setting).</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="mod-db">
+    <div class="section-eyebrow">Module Reference</div>
+    <h2 class="section-title">database/</h2>
+
+    <h3>connection.py</h3>
+    <p>Manages one shared MongoDB client for the lifetime of the application.</p>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">connect()</span><span class="fn-sig">async</span></div>
+      <div class="fn-body"><p>Creates the MongoDB client and pings the server to verify connectivity. Called once in <code>main.py</code>'s <code>@app.on_event("startup")</code>. If this fails, the app won't start — which is intentional.</p></div>
+    </div>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">get_db()</span><span class="fn-sig">→ AsyncIOMotorDatabase</span></div>
+      <div class="fn-body"><p>Returns a reference to the database. Called by every node and router that needs to read/write data. Because MongoDB connections are thread-safe and reused by Motor, this is efficient even under high load.</p></div>
+    </div>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">disconnect()</span><span class="fn-sig">async</span></div>
+      <div class="fn-body"><p>Cleanly closes the MongoDB connection on app shutdown. Prevents connection leaks.</p></div>
+    </div>
+
+    <h3>models.py</h3>
+    <p>Pydantic models used as request/response bodies in the routers. The <code>LeadStatus</code> enum is the single source of truth for all valid status values.</p>
+
+    <h3>seed.py</h3>
+    <p>Creates 2 companies and 6 leads the first time the server starts. Checks for existing data first — completely safe to restart.</p>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">run_seed()</span><span class="fn-sig">async</span></div>
+      <div class="fn-body"><p>Checks if any companies exist. If yes, prints "skipping" and returns immediately. If no, inserts the two companies and attaches 3 leads each. The leads use the first company's <code>_id</code> for leads 0-2, second company for leads 3-5.</p></div>
+    </div>
+  </div>
+
+  <div class="section" id="mod-services">
+    <div class="section-eyebrow">Module Reference</div>
+    <h2 class="section-title">services/vapi_service.py</h2>
+    <p>All Vapi REST API communication lives here. Other parts of the system never touch the Vapi URL directly.</p>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">initiate_outbound_call()</span><span class="fn-sig">async (lead, company) → dict</span></div>
+      <div class="fn-body">
+        <p>The main function. Calls Vapi's <code>/call/phone</code> endpoint. Builds the assistant config inline (no pre-created assistant needed) using the company's profile for the system prompt. Logs the full Vapi error response to the terminal if it fails — so you can see exactly what Vapi rejected.</p>
+        <div class="fn-params">
+          <div class="fn-param"><span class="fn-param-name">lead</span><span class="fn-param-desc">Lead document from MongoDB (must have name, phone, _id).</span></div>
+          <div class="fn-param"><span class="fn-param-name">company</span><span class="fn-param-desc">Company document (must have name, prompt_instructions).</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">_build_system_prompt()</span><span class="fn-sig">(lead, company) → str</span></div>
+      <div class="fn-body"><p>Private helper. Combines the company's custom instructions with the lead's name. This is the "Dynamic Prompting" bonus requirement — every call sounds specific to the company making it.</p></div>
+    </div>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">get_call_details()</span><span class="fn-sig">async (vapi_call_id) → dict</span></div>
+      <div class="fn-body"><p>Fetches full call details from Vapi's <code>/call/{id}</code> endpoint. Useful for debugging when the webhook data seems incomplete.</p></div>
+    </div>
+  </div>
+
+  <div class="section" id="mod-agent">
+    <div class="section-eyebrow">Module Reference</div>
+    <h2 class="section-title">agent/</h2>
+
+    <h3>state.py</h3>
+    <p>Defines the TypedDict schemas for both graphs. TypedDicts are just dictionaries with type hints — they tell LangGraph what shape each node's input and output should be.</p>
+
+    <h3>nodes.py — Campaign nodes</h3>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">load_company_and_leads()</span><span class="fn-sig">async (CampaignState) → CampaignState</span></div>
+      <div class="fn-body"><p>First node. Fetches the company by <code>company_id</code> from MongoDB, then queries all leads with <code>status == "PENDING"</code> for that company. Converts ObjectIds to strings (MongoDB ObjectIds aren't JSON-serializable). Returns updated state with <code>company</code> and <code>pending_leads</code> filled.</p></div>
+    </div>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">dispatch_calls()</span><span class="fn-sig">async (CampaignState) → CampaignState</span></div>
+      <div class="fn-body"><p>Second node. Loops through <code>pending_leads</code>. For each, calls <code>initiate_outbound_call()</code>. On success: updates lead to CALL_INITIATED, creates a call_log, appends to <code>initiated</code>. On failure (any exception): updates lead to FAILED, appends error to <code>errors</code>, continues loop. This try/except per-lead is critical — one bad number shouldn't stop the whole campaign.</p></div>
+    </div>
+
+    <h3>nodes.py — Evaluation nodes</h3>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">load_lead_by_call()</span><span class="fn-sig">async (EvaluationState) → EvaluationState</span></div>
+      <div class="fn-body"><p>Looks up the lead using <code>vapi_call_id</code> — the ID we saved when we initiated the call. Also loads the company so the LLM evaluation prompt can include company context. Raises ValueError if not found (becomes 404).</p></div>
+    </div>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">evaluate_transcript()</span><span class="fn-sig">async (EvaluationState) → EvaluationState</span></div>
+      <div class="fn-body"><p>Builds the classification prompt, tries OpenAI first, Gemini second, NEEDS_REVIEW if both fail. Validates the verdict is one of three known values — guards against the model returning unexpected text. Empty transcript → immediately returns FAILED.</p></div>
+    </div>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">persist_outcome()</span><span class="fn-sig">async (EvaluationState) → EvaluationState</span></div>
+      <div class="fn-body"><p>Two writes: <code>leads.update_one()</code> to set the new status, and <code>call_logs.update_one()</code> to fill in the transcript, summary, and reasoning. Uses <code>$set</code> so other fields aren't touched.</p></div>
+    </div>
+
+    <h3>graph.py</h3>
+    <p>Assembles both graphs and compiles them at import time. Compiled graphs are module-level singletons — they're created once and reused for every request.</p>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">build_campaign_graph()</span><span class="fn-sig">→ CompiledGraph</span></div>
+      <div class="fn-body"><p>Creates a <code>StateGraph(CampaignState)</code>, adds two nodes, sets entry point to <code>load_company_and_leads</code>, adds edges, and compiles. The resulting object has an <code>.ainvoke()</code> method.</p></div>
+    </div>
+
+    <div class="fn-block">
+      <div class="fn-header"><span class="fn-name">build_evaluation_graph()</span><span class="fn-sig">→ CompiledGraph</span></div>
+      <div class="fn-body"><p>Same pattern. Three nodes, linear edges, compiled. Entry point is <code>load_lead_by_call</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="section" id="mod-routers">
+    <div class="section-eyebrow">Module Reference</div>
+    <h2 class="section-title">routers/</h2>
+
+    <h3>companies.py — <code>GET /api/companies/</code></h3>
+    <p>Standard CRUD. The <code>_serialize()</code> helper converts MongoDB's <code>_id</code> ObjectId to a plain string <code>id</code> field — because ObjectIds can't be JSON-serialized directly.</p>
+
+    <h3>leads.py — <code>GET /api/leads/</code></h3>
+    <p>The <code>?company_id=</code> query parameter is the multi-tenancy filter on the frontend. Passing no parameter returns all leads (admin view). The <code>PATCH /status</code> endpoint is a manual override for testing without making a real call.</p>
+
+    <h3>campaigns.py — <code>POST /api/campaigns/{id}/trigger</code></h3>
+    <p>One-liner: builds the initial state and calls <code>campaign_graph.ainvoke()</code>. Returns a summary of what happened. Raises 404 if the company doesn't exist, 500 if the graph itself crashes.</p>
+
+    <h3>webhooks.py — <code>POST /api/webhooks/vapi</code></h3>
+    <p>The public-facing endpoint Vapi calls. Reads raw bytes (not <code>request.json()</code>) to handle empty bodies without crashing. Logs every event type so you can see exactly what Vapi is sending. Only processes <code>end-of-call-report</code> events — everything else is logged and ignored.</p>
+  </div>
+
+  <div class="section" id="mod-main">
+    <div class="section-eyebrow">Module Reference</div>
+    <h2 class="section-title">main.py</h2>
+    <p>The application entry point. Assembles the FastAPI app, configures middleware, registers routers, and handles startup/shutdown.</p>
+
+    <pre><code><span class="comment"># startup: connect to DB, seed if empty</span>
+<span class="comment"># shutdown: close DB connection</span>
+<span class="comment"># CORS: open for all origins (development)</span>
+<span class="comment"># Routers: companies, leads, campaigns, webhooks</span></code></pre>
+
+    <p>The startup handler is why the DB connection is available by the time the first request arrives — <code>connect()</code> runs before the server starts accepting traffic.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── SCENARIOS ─────────────────────────── -->
+  <div class="section" id="scenario-campaign">
+    <div class="section-eyebrow">End-to-End Scenario</div>
+    <h2 class="section-title">Triggering a campaign</h2>
+    <p class="section-lead">Walking through every line of code that runs when the trigger button is hit.</p>
+
+    <pre><code><span class="comment">POST /api/campaigns/6a377fa8aed11f313e1df9fe/trigger</span>
+
+<span class="comment">→ campaigns.py: trigger_campaign(company_id)</span>
+    initial_state = { "company_id": "6a377fa8...", ... }
+    result = await campaign_graph.ainvoke(initial_state)
+
+<span class="comment">→ [Node 1] load_company_and_leads(state)</span>
+    company = await db.companies.find_one({ "_id": ObjectId("6a377fa8...") })
+    <span class="comment">   → { "name": "Sunset Realty", "prompt_instructions": "..." }</span>
+
+    leads = await db.leads.find({ "company_id": "6a377fa8...", "status": "PENDING" })
+    <span class="comment">   → [Alice, Bob, Carol]</span>
+
+    return { ...state, "company": company, "pending_leads": [alice, bob, carol] }
+
+<span class="comment">→ [Node 2] dispatch_calls(state)</span>
+    <span class="comment">   for Alice:</span>
+        vapi_response = await initiate_outbound_call(alice, company)
+        <span class="comment">       → POST api.vapi.ai/call/phone  →  { "id": "019ee8d9-..." }</span>
+        await db.leads.update_one(alice._id, { "status": "CALL_INITIATED", "vapi_call_id": "019ee8d9-..." })
+        await db.call_logs.insert_one({ "lead_id": alice._id, "vapi_call_id": "019ee8d9-...", ... })
+    <span class="comment">   same for Bob, Carol</span>
+
+    return { ...state, "initiated": [{...}, {...}, {...}], "errors": [] }
+
+<span class="comment">→ HTTP response</span>
+{ "calls_initiated": 3, "calls_failed": 0, "details": [...] }</code></pre>
+  </div>
+
+  <div class="section" id="scenario-webhook">
+    <div class="section-eyebrow">End-to-End Scenario</div>
+    <h2 class="section-title">Receiving a webhook</h2>
+    <p class="section-lead">Alice's call ends. Vapi sends the report. Every step that runs.</p>
+
+    <pre><code><span class="comment">POST /api/webhooks/vapi</span>
+<span class="comment">Body: { "message": { "type": "end-of-call-report", "call": { "id": "019ee8d9-..." }, "transcript": "..." } }</span>
+
+<span class="comment">→ webhooks.py: handle_vapi_webhook(request)</span>
+    raw = await request.body()
+    <span class="comment">   → b'{ "message": { ... } }'  (not empty, so continue)</span>
+
+    body = json.loads(raw)
+    event_type = "end-of-call-report"   <span class="comment">→ proceed</span>
+    vapi_call_id = "019ee8d9-cb3a-..."
+    transcript = "AI: Hi Alice...\nAlice: Yes I'm looking to buy..."
+
+    result = await evaluation_graph.ainvoke({ "vapi_call_id": "019ee8d9-...", "transcript": "...", ... })
+
+<span class="comment">→ [Node 1] load_lead_by_call(state)</span>
+    lead = await db.leads.find_one({ "vapi_call_id": "019ee8d9-..." })
+    <span class="comment">   → Alice's document</span>
+    company = await db.companies.find_one({ "_id": ObjectId(lead.company_id) })
+    <span class="comment">   → Sunset Realty</span>
+    return { ...state, "lead": alice, "company": sunset_realty }
+
+<span class="comment">→ [Node 2] evaluate_transcript(state)</span>
+    prompt = "You are analyzing a real estate call... [transcript]"
+
+    response = await openai_client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{ "role": "user", "content": prompt }]
+    )
+    <span class="comment">   → '{ "verdict": "QUALIFIED", "reasoning": "Customer expressed clear buying intent." }'</span>
+
+    return { ...state, "verdict": "QUALIFIED", "reasoning": "Custome

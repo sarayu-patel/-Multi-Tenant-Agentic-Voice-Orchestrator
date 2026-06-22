@@ -1,0 +1,91 @@
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+
+
+# =========================
+# Python Cache
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# Virtual Environments
+# =========================
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Build Files
+# =========================
+build/
+dist/
+downloads/
+.eggs/
+*.egg
+*.egg-info/
+wheels/
+
+# =========================
+# Testing & Coverage
+# =========================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# =========================
+# Type Checkers
+# =========================
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# IDEs
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Local Database Files
+# =========================
+*.sqlite3
+*.db
+
+# =========================
+# Node Modules (if frontend uses npm)
+# =========================
+node_modules/
+
+# =========================
+# Temporary Files
+# =========================
+*.tmp
+*.temp

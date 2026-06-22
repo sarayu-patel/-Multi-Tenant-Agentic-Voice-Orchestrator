@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>VoiceAgent — Dashboard</title>
+ <style>
+ /* ── RESET ───────────────────────────────── */
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ html { font-size: 14px; }
+
+ /* ── TOKENS ──────────────────────────────── */
+ :root {
+ --sidebar: #0B1121;
+ --sidebar-item: rgba(255,255,255,0.06);
+ --sidebar-active:rgba(79,110,247,0.22);
+ --sidebar-txt: rgba(255,255,255,0.5);
+ --sidebar-hi: #ffffff;
+
+ --accent: #4F6EF7;
+ --accent-dim: rgba(79,110,247,0.12);
+ --accent-hover: #3B5BEB;
+
+ --green: #10B981;
+ --green-dim: #D1FAE5;
+ --green-txt: #065F46;
+
+ --amber: #F59E0B;
+ --amber-dim: #FEF3C7;
+ --amber-txt: #92400E;
+
+ --red: #EF4444;
+ --red-dim: #FEE2E2;
+ --red-txt: #991B1B;
+
+ --sky-dim: #E0F2FE;
+ --sky-txt: #0369A1;
+
+ --ground: #F0F3FB;
+ --card: #FFFFFF;
+ --border: #E4E8F5;
+ --text: #111827;
+ --muted: #6B7280;
+ --faint: #9CA3AF;
+
+ --radius: 10px;
+ --shadow-sm: 0 1px 3px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+ --shadow: 0 4px 14px rgba(0,0,0,0.09);
+ --shadow-lg: 0 20px 50px rgba(0,0,0,0.18);
+ }
+
+ /* ── BASE ────────────────────────────────── */
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+ background: var(--ground);
+ color: var(--text);
+ display: flex;
+ height: 100vh;
+ overflow: hidden;
+ }
+
+ a { cursor: pointer; text-decoration: none; }
+
+ /* ── SIDEBAR ─────────────────────────────── */
+ .sidebar {
+ width: 232px;
+ min-width: 232px;
+ background: var(--sidebar);
+ display: flex;
+ flex-direction: column;
+ overflow: hidden;
+ }
+
+ .sidebar-top {
+ padding: 22px 18px 14px;
+ border-bottom: 1px solid rgba(255,255,255,0.05);
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ }
+
+ .logo-mark {
+ width: 34px; height: 34px;
+ background: var(--accent);
+ border-radius: 9px;
+ display: flex; align-items: center; justify-content: center;
+ font-size: 17px; flex-shrink: 0;
+ }
+
+ .logo-name { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+ .logo-tagline { font-size: 9.5px; color: rgba(255,255,255,0.28); letter-spacing: 1.2px; text-transform: uppercase; margin-top: 1px; }
+
+ .nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
+ .nav-group-label {
+ font-size: 9px; letter-spacing: 1.8px; text-transform: uppercase;
+ color: rgba(255,255,255,0.22); padding: 10px 8px 5px;
+ }
+
+ .nav-item {
+ display: flex; align-items: center; gap: 9px;
+ padding: 8px 10px;
+ border-radius: 7px;
+ font-size: 13px;
+ color: var(--sidebar-txt);
+ cursor: pointer;
+ transition: background 0.12s, color 0.12s;
+ margin-bottom: 1px;
+ user-select: none;
+ }
+
+ .nav-item:hover { background: var(--sidebar-item); color: #e0e4f8; }
+ .nav-item.active { background: var(--sidebar-active); color: var(--sidebar-hi); }
+ .nav-item .ni { font-size: 14px; width: 18px; text-align: center; opacity: 0.8; }
+
+ .sidebar-foot {
+ padding: 14px 18px;
+ border-top: 1px solid rgba(255,255,255,0.05);
+ }
+
+ .api-dot {
+ width: 7px; height: 7px; border-radius: 50%;
+ background: var(--faint); transition: background 0.3s;
+ }
+ .api-dot.ok { background: var(--green); box-shadow: 0 0 7px var(--green); }
+ .api-dot.err { background: var(--red); }
+
+ .api-label { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+ /* ── MAIN AREA ───────────────────────────── */
+ .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+ /* ── TOPBAR ──────────────────────────────── */
+ .topbar {
+ height: 52px; background: var(--card);
+ border-bottom: 1px solid var(--border);
+ padding: 0 28px;
+ display: flex; align-items: center; justify-content: space-between;
+ flex-shrink: 0;
+ }
+
+ .topbar-title { font-size: 14px; font-weight: 700; color: var(--text); }
+ .topbar-right { display: flex; gap: 8px; align-items: center; }
+
+ /* ── CONTENT ─────────────────────────────── */
+ .content {
+ flex: 1; overflow-y: auto;
+ padding: 26px 28px 48px;
+ }
+
+ .content::-webkit-scrollbar { width: 4px; }
+ .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+ /* ── BUTTONS ─────────────────────────────── */
+ .btn {
+ display: inline-flex; align-items: center; gap: 6px;
+ padding: 8px 15px;
+ border-radius: 7px;
+ font-size: 12.5px; font-weight: 600;
+ cursor: pointer; border: none;
+ transition: all 0.12s; white-space: nowrap;
+ font-family: inherit;
+ }
+ .btn-primary { background: var(--accent); color: #fff; }
+ .btn-primary:hover { background: var(--accent-hover); }
+ .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+ .btn-ghost:hover { background: var(--ground); color: var(--text); }
+ .btn-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+ .btn-outline:hover { background: var(--accent-dim); }
+ .btn-sm { padding: 5px 11px; font-size: 11.5px; }
+ .btn-xs { padding: 3px 8px; font-size: 11px; }
+ .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+ .btn-full { width: 100%; justify-content: center; }
+
+ /* ── STATS GRID ──────────────────────────── */
+ .stats-row {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+ gap: 12px; margin-bottom: 26px;
+ }
+
+ .stat {
+ background: var(--card);
+ border: 1px solid var(--border);
+ border-radius: var(--radius);
+ padding: 14px 16px;
+ box-shadow: var(--shadow-sm);
+ }
+
+ .stat-label {
+ font-size: 10px; font-weight: 700; text-transform: uppercase;
+ letter-spacing: 0.7px; color: var(--muted); margin-bottom: 6px;
+ }
+
+ .stat-num {
+ font-size: 30px; font-weight: 800; line-height: 1;
+ letter-spacing: -1.5px; color: var(--text);
+ }
+
+ .stat.s-pending .stat-num { color: var(--accent); }
+ .stat.s-qualified .stat-num { color: var(--green); }
+ .stat.s-review .stat-num { color: var(--amber); }
+ .stat.s-fail .stat-num { color: var(--red); }
+
+ /* ── SECTION HDR ─────────────────────────── */
+ .sec-hdr {
+ display: flex; align-items: center; justify-content: space-between;
+ margin-bottom: 12px;
+ }
+ .sec-title { font-size: 13px; font-weight: 700; color: var(--text); }
+
+ /* ── CARD ────────────────────────────────── */
+ .card {
+ background: var(--card);
+ border: 1px solid var(--border);
+ border-radius: var(--radius);
+ box-shadow: var(--shadow-sm);
+ overflow: hidden;
+ }
+ .card-pad { padding: 18px 20px; }
+
+ /* ── COMPANY GRID ────────────────────────── */
+ .co-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+ gap: 14px;
+ }
+
+ .co-card {
+ background: var(--card);
+ border: 1px solid var(--border);
+ border-radius: 12px;
+ padding: 18px 20px;
+ box-shadow: var(--shadow-sm);
+ display: flex; flex-direction: column; gap: 10px;
+ transition: border-color 0.15s, box-shadow 0.15s;
+ }
+
+ .co-card:hover {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(79,110,247,0.07), var(--shadow);
+ }
+
+ .co-avatar {
+ width: 36px; height: 36px; border-radius: 9px;
+ display: flex; align-items: center; justify-content: center;
+ font-size: 15px; font-weight: 800; color: #fff;
+ flex-shrink: 0;
+ }
+
+ .co-name { font-size: 14px; font-weight: 700; color: var(--text); }
+
+ .co-prompt {
+ font-size: 11.5px; color: var(--muted); line-height: 1.5;
+ display: -webkit-box; -webkit-line-clamp: 2;
+ -webkit-box-orient: vertical; overflow: hidden;
+ }
+
+ .co-meta { font-size: 11px; color: var(--faint); display: flex; gap: 10px; }
+ .co-meta-ok { color: var(--green); }
+
+ .co-actions { display: flex; gap: 8px; }
+
+ /* ── TABLE ───────────────────────────────── */
+ .tbl-wrap { overflow-x: auto; }
+
+ table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+
+ thead th {
+ text-align: left;
+ padding: 9px 14px;
+ font-size: 10px; font-weight: 700;
+ text-transform: uppercase; letter-spacing: 1px;
+ color: var(--faint);
+ background: #F8FAFF;
+ border-bottom: 1px solid var(--border);
+ }
+
+ tbody td {
+ padding: 11px 14px;
+ border-bottom: 1px solid var(--border);
+ color: var(--muted);
+ vertical-align: middle;
+ }
+
+ tbody tr:last-child td { border-bottom: none; }
+ tbody tr:hover td { background: #FAFBFF; }
+ td.td-strong { color: var(--text); font-weight: 600; font-size: 13px; }
+ td.td-mono { font-family: 'SF Mono', Consolas, monospace; font-size: 11.5px; }
+
+ /* ── BADGES ──────────────────────────────── */
+ .badge {
+ display: inline-block;
+ padding: 2px 8px; border-radius: 20px;
+ font-size: 10.5px; font-weight: 700; letter-spacing: 0.3px;
+ white-space: nowrap;
+ }
+
+ .b-pending { background: #EEF2FF; color: #4338CA; }
+ .b-initiated { background: var(--sky-dim); color: var(--sky-txt); }
+ .b-qualified { background: var(--green-dim); color: var(--green-txt); }
+ .b-not_interested { background: var(--red-dim); color: var(--red-txt); }
+ .b-needs_review { background: var(--amber-dim); color: var(--amber-txt); }
+ .b-failed { background: var(--red-dim); color: var(--red-txt); }
+
+ /* ── FILTERS ─────────────────────────────── */
+ .filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+
+ .fsel {
+ padding: 7px 11px;
+ border: 1.5px solid var(--border);
+ border-radius: 7px;
+ font-size: 12.5px;
+ background: var(--card); color: var(--text);
+ outline: none; font-family: inherit;
+ transition: border-color 0.12s;
+ }
+ .fsel:focus { border-color: var(--accent); }
+
+ /* ── MODAL ───────────────────────────────── */
+ .overlay {
+ position: fixed; inset: 0;
+ background: rgba(0,0,0,0.45);
+ display: flex; align-items: center; justify-content: center;
+ z-index: 900; padding: 20px;
+ backdrop-filter: blur(3px);
+ }
+ .overlay.hidden { display: none; }
+
+ .modal {
+ background: var(--card);
+ border-radius: 14px;
+ width: 100%; max-width: 440px;
+ box-shadow: var(--shadow-lg);
+ overflow: hidden;
+ }
+
+ .modal-hdr {
+ padding: 18px 22px 14px;
+ border-bottom: 1px solid var(--border);
+ display: flex; align-items: center; justify-content: space-between;
+ }
+
+ .modal-title { font-size: 14px; font-weight: 700; }
+
+ .modal-x {
+ width: 26px; height: 26px;
+ border-radius: 6px; border: none;
+ background: var(--ground); color: var(--muted);
+ cursor: pointer; font-size: 14px;
+ display: flex; align-items: center; justify-content: center;
+ }
+ .modal-x:hover { background: var(--border); color: var(--text); }
+
+ .modal-body { padding: 18px 22px; }
+ .modal-foot { padding: 12px 22px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+ /* ── FORM ────────────────────────────────── */
+ .fg { margin-bottom: 14px; }
+ .fg:last-child { margin-bottom: 0; }
+
+ .flbl {
+ display: block;
+ font-size: 11.5px; font-weight: 600; color: var(--text);
+ margin-bottom: 5px;
+ }
+
+ .finput, .ftarea, .fsel-full {
+ width: 100%;
+ padding: 9px 11px;
+ border: 1.5px solid var(--border);
+ border-radius: 7px;
+ font-size: 13px;
+ background: var(--card); color: var(--text);
+ outline: none; font-family: inherit;
+ transition: border-color 0.12s, box-shadow 0.12s;
+ }
+
+ .finput:focus, .ftarea:focus, .fsel-full:focus {
+ border-color: var(--accent);
+ box-shadow: 0 0 0 3px rgba(79,110,247,0.1);
+ }
+
+ .ftarea { min-height: 80px; resize: vertical; line-height: 1.55; }
+ .fhint { font-size: 11px; color: var(--faint); margin-top: 4px; }
+
+ /* ── TOASTS ──────────────────────────────── */
+ .toast-box {
+ position: fixed; bottom: 22px; right: 22px;
+ display: flex; flex-direction: column; gap: 7px;
+ z-index: 1000;
+ }
+
+ .toast {
+ background: var(--card);
+ border: 1px solid var(--border);
+ border-radius: 9px;
+ padding: 10px 14px;
+ display: flex; align-items: flex-start; gap: 10px;
+ font-size: 12.5px; font-weight: 500; color: var(--text);
+ box-shadow: var(--shadow);
+ animation: tin 0.18s ease;
+ min-width: 260px; max-width: 340px;
+ }
+
+ .toast.ok { border-left: 3px solid var(--green); }
+ .toast.err { border-left: 3px solid var(--red); }
+ .toast.inf { border-left: 3px solid var(--accent); }
+
+ .toast-ico { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+ .toast-msg { line-height: 1.4; }
+
+ @keyframes tin {
+ from { transform: translateX(16px); opacity: 0; }
+ to { transform: translateX(0); opacity: 1; }
+ }
+
+ /* ── SPINNER ─────────────────────────────── */
+ .spin {
+ width: 14px; height: 14px;
+ border: 2px solid rgba(255,255,255,0.3);
+ border-top-color: #fff;
+ border-radius: 50%;
+ animation: rot 0.55s linear infinite;
+ flex-shrink: 0;
+ }
+ .spin-dark {
+ border-color: rgba(79,110,247,0.2);
+ border-top-color: var(--accent);
+ }
+ @keyframes rot { to { transform: rotate(360deg); } }
+
+ /* ── SKELETON ────────────────────────────── */
+ .skel {
+ background: linear-gradient(90deg,#f0f2f8 25%,#e6e9f4 50%,#f0f2f8 75%);
+ background-size: 200% 100%;
+ animation: shim 1.3s infinite;
+ border-radius: 5px;
+ }
+ @keyframes shim { from{background-position:200% 0} to{background-position:-200% 0} }
+
+ /* ── CAMPAIGN RESULT ─────────────────────── */
+ .campaign-out {
+ border-radius: 8px;
+ padding: 12px 14px;
+ margin-top: 10px;
+ font-size: 12.5px;
+ }
+ .campaign-out.ok { background: var(--green-dim); border-left: 3px solid var(--green); }
+ .campaign-out.warn{ background: var(--amber-dim); border-left: 3px solid var(--amber); }
+
+ .cout-title { font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+ .cout-row { display: flex; justify-content: space-between; padding: 2px 0; color: var(--muted); }
+ .cout-row strong { color: var(--text); }
+
+ /* ── EMPTY STATE ─────────────────────────── */
+ .empty {
+ text-align: center;
+ padding: 52px 20px;
+ }
+ .empty-ico { font-size: 38px; margin-bottom: 10px; }
+ .empty-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+ .empty-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+
+ /* ── UTILS ───────────────────────────────── */
+ .flex { display: flex; }
+ .aic { align-items: center; }
+ .g8 { gap: 8px; }
+ .g10 { gap: 10px; }
+ .mt8 { margin-top: 8px; }
+ .mt16 { margin-top: 16px; }
+ .mt22 { margin-top: 22px; }
+ .muted { color: var(--muted); }
+ .faint { color: var(--faint); }
+ .small { font-size: 11.5px; }
+ .mono { font-family: 'SF Mono', Consolas, monospace; }
+ .bold { font-weight: 700; }
+ .link-btn { color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 600; }
+
+ @media (prefers-reduced-motion: reduce) {
+ *, *::before, *::after { animation: none !important; transition: none !important; }
+ }
+ </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ───────────────────────────────────── -->
+<aside class="sidebar">
+ <div class="sidebar-top">
+ <div class="logo-mark">📞</div>
+ <div>
+ <div class="logo-name">VoiceAgent</div>
+ <div class="logo-tagline">Campaign Hub</div>
+ </div>
+ </div>
+
+ <nav class="nav" id="nav">
+ <div class="nav-group-label">Workspace</div>
+ <div class="nav-item active" data-view="dashboard">
+ <span class="ni">⬛</span> Dashboard
+ </div>
+ <div class="nav-item" data-view="companies">
+ <span class="ni">🏢</span> Companies
+ </div>
+ <div class="nav-item" data-view="leads">
+ <span class="ni">👥</span> Leads
+ </div>
+
+ <div class="nav-group-label" style="margin-top:14px">Actions</div>
+ <div class="nav-item" data-view="campaigns">
+ <span class="ni">🚀</span> Run Campaign
+ </div>
+ </nav>
+
+ <div class="sidebar-foot">
+ <div class="flex aic g8">
+ <div class="api-dot" id="api-dot"></div>
+ <span class="api-label" id="api-label">Connecting…</span>
+ </div>
+ </div>
+</aside>
+
+<!-- ── MAIN ──────────────────────────────────────── -->
+<div class="main">
+ <div class="topbar">
+ <span class="topbar-title" id="page-title">Dashboard</span>
+ <div class="topbar-right" id="topbar-right"></div>
+ </div>
+ <div class="content" id="content">
+ <div style="display:flex;align-items:center;justify-content:center;height:200px">
+ <div class="spin spin-dark" style="width:22px;height:22px;border-width:3px"></div>
+ </div>
+ </div>
+</div>
+
+<!-- ── MODAL ─────────────────────────────────────── -->
+<div class="overlay hidden" id="overlay" onclick="closeModal(event)">
+ <div class="modal" onclick="event.stopPropagation()">
+ <div class="modal-hdr">
+ <span class="modal-title" id="modal-title">—</span>
+ <button class="modal-x" onclick="closeModal()">✕</button>
+ </div>
+ <div class="modal-body" id="modal-body"></div>
+ <div class="modal-foot" id="modal-foot"></div>
+ </div>
+</div>
+
+<!-- ── TOASTS ────────────────────────────────────── -->
+<div class="toast-box" id="toasts"></div>
+
+<script>
+/* ──────────────────────────────────────────────────
+ API — thin wrapper around fetch
+────────────────────────────────────────────────── */
+const API = {
+ async _req(method, path, body) {
+ const opts = { method, headers: {} };
+ if (body !== undefined) {
+ opts.headers['Content-Type'] = 'application/json';
+ opts.body = JSON.stringify(body);
+ }
+ const res = await fetch(path, opts);
+ if (!res.ok) {
+ const txt = await res.text().catch(() => res.statusText);
+ throw new Error(txt || `HTTP ${res.status}`);
+ }
+ return res.json();
+ },
+
+ get: (p) => API._req('GET', p),
+ post: (p, b) => API._req('POST', p, b),
+ patch: (p, b) => API._req('PATCH', p, b),
+
+ companies: () => API.get('/api/companies/'),
+ createCompany:(d) => API.post('/api/companies/', d),
+ leads: (cid) => API.get('/api/leads/' + (cid ? '?company_id=' + cid : '')),
+ createLead: (d) => API.post('/api/leads/', d),
+ setStatus: (id, status) => API.patch(`/api/leads/${id}/status`, { status }),
+ trigger: (cid) => API.post(`/api/campaigns/${cid}/trigger`, {}),
+};
+
+/* ──────────────────────────────────────────────────
+ STATE
+────────────────────────────────────────────────── */
+const S = {
+ view: 'dashboard',
+ companies: [],
+ leads: [],
+ filterCompany: '',
+ filterStatus: '',
+ campaignResults:{},
+ autoRefreshing: false,
+};
+
+/* ──────────────────────────────────────────────────
+ STARTUP
+────────────────────────────────────────────────── */
+async function boot() {
+ try {
+ [S.companies, S.leads] = await Promise.all([API.companies(), API.leads()]);
+ setApiStatus(true);
+ } catch (e) {
+ setApiStatus(false);
+ console.error('Boot error:', e);
+ }
+ bindNav();
+ go('dashboard');
+}
+
+function setApiStatus(ok) {
+ document.getElementById('api-dot').className = 'api-dot ' + (ok ? 'ok' : 'err');
+ document.getElementById('api-label').textContent = ok ? 'API connected' : 'API unreachable';
+}
+
+/* ──────────────────────────────────────────────────
+ NAVIGATION
+────────────────────────────────────────────────── */
+function bindNav() {
+ document.getElementById('nav').addEventListener('click', e => {
+ const item = e.target.closest('.nav-item[data-view]');
+ if (item) go(item.dataset.view);
+ });
+}
+
+function go(view) {
+ S.view = view;
+ document.querySelectorAll('.nav-item').forEach(el =>
+ el.classList.toggle('active', el.dataset.view === view)
+ );
+ const titles = { dashboard:'Dashboard', companies:'Companies', leads:'Leads', campaigns:'Run Campaign' };
+ document.getElementById('page-title').textContent = titles[view] || view;
+ render();
+}
+
+/* ──────────────────────────────────────────────────
+ RENDER DISPATCHER
+────────────────────────────────────────────────── */
+function render() {
+ const content = document.getElementById('content');
+ const tr = document.getElementById('topbar-right');
+
+ switch (S.view) {
+ case 'dashboard':
+ content.innerHTML = htmlDashboard();
+ tr.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="refresh()">↻ Refresh</button>`;
+ break;
+ case 'companies':
+ content.innerHTML = htmlCompanies();
+ tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openCompanyModal()">+ New Company</button>`;
+ break;
+ case 'leads':
+ content.innerHTML = htmlLeads();
+ tr.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openLeadModal()">+ New Lead</button>`;
+ break;
+ case 'campaigns':
+ content.innerHTML = htmlCampaigns();
+ tr.innerHTML = '';
+ break;
+ }
+}
+
+/* ──────────────────────────────────────────────────
+ DASHBOARD
+────────────────────────────────────────────────── */
+function htmlDashboard() {
+ const c = tallyCounts(S.leads);
+ const recentLeads = [...S.leads].reverse().slice(0, 7);
+
+ return `
+ <div class="stats-row">
+ ${stat('Total', c.total, '')}
+ ${stat('Pending', c.pending, 's-pending')}
+ ${stat('Call Initiated', c.initiated, '')}
+ ${stat('Qualified', c.qualified, 's-qualified')}
+ ${stat('Not Interested', c.not_interested, 's-fail')}
+ ${stat('Needs Review', c.needs_review, 's-review')}
+ </div>
+
+ <div class="sec-hdr mt8">
+ <span class="sec-title">Companies</span>
+ <a class="link-btn" onclick="go('companies')">All companies →</a>
+ </div>
+ ${S.companies.length === 0
+ ? `<p class="muted small">No companies yet. <a class="link-btn" onclick="go('companies')">Create one</a>.</p>`
+ : `<div class="co-grid">${S.companies.map(co => coCard(co, true)).join('')}</div>`
+ }
+
+ <div class="sec-hdr mt22">
+ <span class="sec-title">Recent Leads</span>
+ <a class="link-btn" onclick="go('leads')">All leads →</a>
+ </div>
+ ${recentLeads.length === 0
+ ? `<p class="muted small">No leads yet.</p>`
+ : `<div class="card"><div class="tbl-wrap">${leadsTable(recentLeads)}</div></div>`
+ }
+ ${S.leads.length > 7
+ ? `<p class="faint small mt8" style="text-align:center">${S.leads.length - 7} more — <a class="link-btn" onclick="go('leads')">view all</a></p>`
+ : ''
+ }
+ `;
+}
+
+function stat(label, value, cls) {
+ return `<div class="stat ${cls}">
+ <div class="stat-label">${label}</div>
+ <div class="stat-num">${value}</div>
+ </div>`;
+}
+
+function tallyCounts(leads) {
+ const c = { total: leads.length, pending: 0, initiated: 0, qualified: 0, not_interested: 0, needs_review: 0, failed: 0 };
+ leads.forEach(l => {
+ const k = l.status.toLowerCase();
+ if (k === 'call_initiated') c.initiated++;
+ else if (c[k] !== undefined) c[k]++;
+ });
+ return c;
+}
+
+/* ──────────────────────────────────────────────────
+ COMPANIES VIEW
+────────────────────────────────────────────────── */
+function htmlCompanies() {
+ if (S.companies.length === 0) {
+ return `<div class="empty">
+ <div class="empty-ico">🏢</div>
+ <div class="empty-title">No companies yet</div>
+ <div class="empty-sub">Create a company to run voice campaigns for their leads.</div>
+ <button class="btn btn-primary" onclick="openCompanyModal()">+ Create Company</button>
+ </div>`;
+ }
+ return `<div class="co-grid">${S.companies.map(co => coCard(co, false)).join('')}</div>`;
+}
+
+function coCard(co, compact) {
+ const coLeads = S.leads.filter(l => l.company_id === co.id);
+ const c = tallyCounts(coLeads);
+ const letter = (co.name || '?').charAt(0).toUpperCase();
+ const palette = ['#4F6EF7','#10B981','#8B5CF6','#F59E0B','#EF4444','#06B6D4'];
+ const bg = palette[letter.charCodeAt(0) % palette.length];
+ const result = S.campaignResults[co.id];
+
+ return `
+ <div class="co-card">
+ <div class="flex aic g10">
+ <div class="co-avatar" style="background:${bg}">${esc(letter)}</div>
+ <div>
+ <div class="co-name">${esc(co.name)}</div>
+ <div class="co-meta">
+ <span>${c.total} leads</span>
+ <span class="co-meta-ok">✓ ${c.qualified} qualified</span>
+ <span style="color:var(--amber)">${c.pending} pending</span>
+ </div>
+ </div>
+ </div>
+ ${!compact ? `<div class="co-prompt">${esc(co.prompt_instructions || '')}</div>` : ''}
+ <div class="co-actions">
+ <button class="btn btn-primary btn-sm" style="flex:1"
+ onclick="runCampaign('${co.id}', this)">
+ 🚀 Run Campaign
+ </button>
+ <button class="btn btn-ghost btn-sm"
+ onclick="filterLeadsBy('${co.id}')">
+ 👥 Leads
+ </button>
+ </div>
+ ${result ? campaignOut(result) : ''}
+ </div>
+ `;
+}
+
+function campaignOut(r) {
+ const ok = r.calls_initiated > 0;
+ return `
+ <div class="campaign-out ${ok ? 'ok' : 'warn'}">
+ <div class="cout-title" style="color:${ok ? 'var(--green)' : 'var(--amber)'}">
+ ${ok ? '✓ Campaign sent' : '— No pending leads'}
+ </div>
+ <div class="cout-row"><span>Calls initiated</span><strong>${r.calls_initiated}</strong></div>
+ <div class="cout-row"><span>Errors</span><strong>${r.calls_failed || 0}</strong></div>
+ </div>
+ `;
+}
+
+/* ──────────────────────────────────────────────────
+ LEADS VIEW
+────────────────────────────────────────────────── */
+function htmlLeads() {
+ const coOpts = S.companies.map(co =>
+ `<option value="${co.id}" ${S.filterCompany === co.id ? 'selected' : ''}>${esc(co.name)}</option>`
+ ).join('');
+
+ let rows = S.leads;
+ if (S.filterCompany) rows = rows.filter(l => l.company_id === S.filterCompany);
+ if (S.filterStatus) rows = rows.filter(l => l.status === S.filterStatus);
+
+ return `
+ <div class="filter-row">
+ <select class="fsel" onchange="setFilter('company', this.value)">
+ <option value="">All companies</option>
+ ${coOpts}
+ </select>
+ <select class="fsel" onchange="setFilter('status', this.value)">
+ <option value="">All statuses</option>
+ <option value="PENDING" ${S.filterStatus==='PENDING'?'selected':''}>Pending</option>
+ <option value="CALL_INITIATED" ${S.filterStatus==='CALL_INITIATED'?'selected':''}>Call Initiated</option>
+ <option value="QUALIFIED" ${S.filterStatus==='QUALIFIED'?'selected':''}>Qualified</option>
+ <option value="NOT_INTERESTED" ${S.filterStatus==='NOT_INTERESTED'?'selected':''}>Not Interested</option>
+ <option value="NEEDS_REVIEW" ${S.filterStatus==='NEEDS_REVIEW'?'selected':''}>Needs Review</option>
+ <option value="FAILED" ${S.filterStatus==='FAILED'?'selected':''}>Failed</option>
+ </select>
+ <span class="faint small">${rows.length} result${rows.length !== 1 ? 's' : ''}</span>
+ </div>
+ ${rows.length === 0
+ ? `<div class="empty"><div class="empty-ico">🔍</div><div class="empty-title">No leads found</div><div class="empty-sub">Try a different filter, or add a lead.</div></div>`
+ : `<div class="card"><div class="tbl-wrap">${leadsTable(rows)}</div></div>`
+ }
+ `;
+}
+
+function leadsTable(leads) {
+ const coMap = Object.fromEntries(S.companies.map(co => [co.id, co.name]));
+ return `
+ <table>
+ <thead>
+ <tr>
+ <th>Name</th>
+ <th>Phone</th>
+ <th>Company</th>
+ <th>Status</th>
+ <th>Override</th>
+ </tr>
+ </thead>
+ <tbody>
+ ${leads.map(l => `
+ <tr>
+ <td class="td-strong">${esc(l.name)}</td>
+ <td class="td-mono">${esc(l.phone)}</td>
+ <td class="muted small">${esc(coMap[l.company_id] || '—')}</td>
+ <td>${badge(l.status)}</td>
+ <td>
+ <select class="fsel"
+ style="padding:4px 8px;font-size:11px;min-width:0"
+ onchange="changeStatus('${l.id}', this.value, this)">
+ <option value="PENDING" ${l.status==='PENDING'?'selected':''}>Pending</option>
+ <option value="QUALIFIED" ${l.status==='QUALIFIED'?'selected':''}>Qualified</option>
+ <option value="NOT_INTERESTED" ${l.status==='NOT_INTERESTED'?'selected':''}>Not Interested</option>
+ <option value="NEEDS_REVIEW" ${l.status==='NEEDS_REVIEW'?'selected':''}>Needs Review</option>
+ </select>
+ </td>
+ </tr>
+ `).join('')}
+ </tbody>
+ </table>
+ `;
+}
+
+/* ──────────────────────────────────────────────────
+ CAMPAIGNS VIEW
+────────────────────────────────────────────────── */
+function htmlCampaigns() {
+ if (S.companies.length === 0) {
+ return `<div class="empty">
+ <div class="empty-ico">🏢</div>
+ <div class="empty-title">No companies yet</div>
+ <div class="empty-sub">Create a company first, then run a campaign.</div>
+ <button class="btn btn-primary" onclick="go('companies')">Go to Companies</button>
+ </div>`;
+ }
+
+ const cards = S.companies.map(co => {
+ const pending = S.leads.filter(l => l.company_id === co.id && l.status === 'PENDING').length;
+ const result = S.campaignResults[co.id];
+ const letter = (co.name || '?').charAt(0).toUpperCase();
+ const palette = ['#4F6EF7','#10B981','#8B5CF6','#F59E0B','#EF4444','#06B6D4'];
+ const bg = palette[letter.charCodeAt(0) % palette.length];
+
+ return `
+ <div class="card card-pad" style="margin-bottom:14px;max-width:540px">
+ <div class="flex aic g10" style="margin-bottom:12px">
+ <div class="co-avatar" style="background:${bg}">${esc(letter)}</div>
+ <div>
+ <div class="co-name">${esc(co.name)}</div>
+ <div class="co-meta">
+ <span style="${pending > 0 ? 'color:var(--amber)' : ''}">${pending} pending lead${pending !== 1 ? 's' : ''}</span>
+ </div>
+ </div>
+ </div>
+ <button class="btn btn-primary btn-full"
+ onclick="runCampaign('${co.id}', this)"
+ ${pending === 0 ? 'disabled' : ''}>
+ 🚀 Start Campaign — ${esc(co.name)}
+ </button>
+ ${result ? campaignOut(result) : ''}
+ </div>
+ `;
+ }).join('');
+
+ return `
+ <p class="muted small" style="margin-bottom:20px;line-height:1.7;max-width:500px">
+ Select a company and trigger outbound calls for all their
+ <span class="badge b-pending">PENDING</span> leads.
+ Each lead gets a personalised AI call. Results appear below after the campaign starts.
+ </p>
+ ${cards}
+ `;
+}
+
+/* ──────────────────────────────────────────────────
+ ACTIONS
+────────────────────────────────────────────────── */
+async function runCampaign(coId, btn) {
+ const orig = btn.innerHTML;
+ btn.disabled = true;
+ btn.innerHTML = `<div class="spin"></div> Calling leads…`;
+
+ try {
+ const result = await API.trigger(coId);
+ S.campaignResults[coId] = result;
+ S.leads = await API.leads(); // refresh statuses
+ const n = result.calls_initiated;
+ toast(`${n} call${n !== 1 ? 's' : ''} initiated for ${companyName(coId)}`, 'ok');
+
+ if (n > 0 && !S.autoRefreshing) startAutoRefresh();
+ render();
+ } catch (e) {
+ toast('Campaign failed: ' + e.message, 'err');
+ btn.disabled = false;
+ btn.innerHTML = orig;
+ }
+}
+
+function filterLeadsBy(coId) {
+ S.filterCompany = coId;
+ S.filterStatus = '';
+ go('leads');
+}
+
+function setFilter(type, val) {
+ if (type === 'company') S.filterCompany = val;
+ if (type === 'status') S.filterStatus = val;
+ render();
+}
+
+async function changeStatus(leadId, newStatus, sel) {
+ try {
+ await API.setStatus(leadId, newStatus);
+ const lead = S.leads.find(l => l.id === leadId);
+ if (lead) lead.status = newStatus;
+ toast(`Status → ${newStatus.replace(/_/g,' ')}`, 'ok');
+ render();
+ } catch (e) {
+ toast('Update failed: ' + e.message, 'err');
+ render(); // revert select to current DB state
+ }
+}
+
+async function refresh() {
+ try {
+ [S.companies, S.leads] = await Promise.all([API.companies(), API.leads()]);
+ setApiStatus(true);
+ render();
+ toast('Refreshed', 'inf');
+ } catch (e) {
+ setApiStatus(false);
+ toast('Refresh failed', 'err');
+ }
+}
+
+// Auto-refresh every 20s while any lead is in CALL_INITIATED state
+function startAutoRefresh() {
+ if (S.autoRefreshing) return;
+ S.autoRefreshing = true;
+ const timer = setInterval(async () => {
+ const hasPending = S.leads.some(l => l.status === 'CALL_INITIATED');
+ if (!hasPending) { clearInterval(timer); S.autoRefreshing = false; return; }
+ S.leads = await API.leads().catch(() => S.leads);
+ render();
+ }, 20000);
+}
+
+/* ──────────────────────────────────────────────────
+ MODALS
+────────────────────────────────────────────────── */
+function openCompanyModal() {
+ document.getElementById('modal-title').textContent = 'New Company';
+ document.getElementById('modal-body').innerHTML = `
+ <div class="fg">
+ <label class="flbl">Company Name *</label>
+ <input class="finput" id="c-name" placeholder="e.g. Sunrise Properties" autofocus />
+ </div>
+ <div class="fg">
+ <label class="flbl">AI Prompt Instructions *</label>
+ <textarea class="ftarea" id="c-prompt" rows="4"
+ placeholder="You work for [Company]. Your job is to find out if the lead is interested in..."></textarea>
+ <p class="fhint">This text becomes the system prompt for every call made under this company.</p>
+ </div>
+ `;
+ document.getElementById('modal-foot').innerHTML = `
+ <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+ <button class="btn btn-primary" onclick="submitCompany(this)">Create Company</button>
+ `;
+ document.getElementById('overlay').classList.remove('hidden');
+}
+
+async function submitCompany(btn) {
+ const name = (document.getElementById('c-name').value || '').trim();
+ const prompt = (document.getElementById('c-prompt').value || '').trim();
+ if (!name) { document.getElementById('c-name').focus(); return; }
+ if (!prompt) { document.getElementById('c-prompt').focus(); return; }
+
+ btn.disabled = true;
+ btn.innerHTML = `<div class="spin"></div> Creating…`;
+ try {
+ const created = await API.createCompany({ name, prompt_instructions: prompt });
+ S.companies.push(created);
+ closeModal();
+ toast(`"${name}" created`, 'ok');
+ render();
+ } catch (e) {
+ toast('Create failed: ' + e.message, 'err');
+ btn.disabled = false;
+ btn.innerHTML = 'Create Company';
+ }
+}
+
+function openLeadModal() {
+ const coOpts = S.companies.map(co =>
+ `<option value="${co.id}" ${S.filterCompany === co.id ? 'selected' : ''}>${esc(co.name)}</option>`
+ ).join('');
+
+ document.getElementById('modal-title').textContent = 'New Lead';
+ document.getElementById('modal-body').innerHTML = `
+ <div class="fg">
+ <label class="flbl">Company *</label>
+ <select class="fsel-full" id="l-co">
+ <option value="">Select company…</option>
+ ${coOpts}
+ </select>
+ </div>
+ <div class="fg">
+ <label class="flbl">Full Name *</label>
+ <input class="finput" id="l-name" placeholder="e.g. Alice Johnson" />
+ </div>
+ <div class="fg">
+ <label class="flbl">Phone Number *</label>
+ <input class="finput" id="l-phone" placeholder="+14085550123" />
+ <p class="fhint">E.164 format — US: +1XXXXXXXXXX · India (paid Vapi plan): +91XXXXXXXXXX</p>
+ </div>
+ `;
+ document.getElementById('modal-foot').innerHTML = `
+ <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+ <button class="btn btn-primary" onclick="submitLead(this)">Add Lead</button>
+ `;
+ document.getElementById('overlay').classList.remove('hidden');
+}
+
+async function submitLead(btn) {
+ const company_id = (document.getElementById('l-co').value || '').trim();
+ const name = (document.getElementById('l-name').value || '').trim();
+ const phone = (document.getElementById('l-phone').value || '').trim();
+
+ if (!company_id || !name || !phone) {
+ toast('All fields are required', 'err'); return;
+ }
+
+ btn.disabled = true;
+ btn.innerHTML = `<div class="spin"></div> Adding…`;
+ try {
+ const created = await API.createLead({ company_id, name, phone });
+ S.leads.push(created);
+ closeModal();
+ toast(`"${name}" added as a lead`, 'ok');
+ render();
+ } catch (e) {
+ toast('Add failed: ' + e.message, 'err');
+ btn.disabled = false;
+ btn.innerHTML = 'Add Lead';
+ }
+}
+
+function closeModal(e) {
+ if (e && e.target !== document.getElementById('overlay')) return;
+ document.getElementById('overlay').classList.add('hidden');
+}
+
+/* ──────────────────────────────────────────────────
+ TOAST
+────────────────────────────────────────────────── */
+function toast(msg, type = 'inf') {
+ const icons = { ok: '✓', err: '✕', inf: 'ℹ' };
+ const el = document.createElement('div');
+ el.className = `toast ${type}`;
+ el.innerHTML = `<span class="toast-ico">${icons[type] || 'ℹ'}</span><span class="toast-msg">${esc(msg)}</span>`;
+ document.getElementById('toasts').appendChild(el);
+ setTimeout(() => el.remove(), 4500);
+}
+
+/* ──────────────────────────────────────────────────
+ HELPERS
+────────────────────────────────────────────────── */
+function badge(status) {
+ const map = {
+ PENDING: ['b-pending', 'Pending'],
+ CALL_INITIATED:['b-initiated', 'Call Initiated'],
+ QUALIFIED: ['b-qualified', 'Qualified'],
+ NOT_INTERESTED:['b-not_interested','Not Interested'],
+ NEEDS_REVIEW: ['b-needs_review', 'Needs Review'],
+ FAILED: ['b-failed', 'Failed'],
+ };
+ const [cls, label] = map[status] || ['', status];
+ return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function companyName(id) {
+ const co = S.companies.find(c => c.id === id);
+ return co ? co.name : id;
+}
+
+function esc(s) {
+ if (!s) return '';
+ return String(s)
+ .replace(/&/g,'&amp;')
+ .replace(/</g,'&lt;')
+ .replace(/>/g,'&gt;')
+ .replace(/"/g,'&quot;');
+}
+
+/* ── GO ── */
+boot();
+</script>
+</body>
+</html>
+
