@@ -9,7 +9,6 @@ from app.agent.nodes import (
     persist_outcome,
 )
 
-
 def build_campaign_graph():
     """
     Graph used when a manager clicks "Trigger Campaign".
